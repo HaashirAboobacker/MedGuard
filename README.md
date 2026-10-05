@@ -7,7 +7,7 @@
 | **Project Name** | MedGuard |
 | **Team Name** | 404 Brain Not Found |
 | **Selected Track** | 12 |
-| **Challenge Number & Title** | `[3] – [ Hospital Network + Infrastructure ]` |
+| **Challenge Number & Title** | 3 – Hospital Network + Infrastructure |
 | **License** | [MIT](LICENSE) (open source) |
 | **Final version for judging** | Tag `v1.0.0-astra2026` *(see [docs/SUBMISSION.md](docs/SUBMISSION.md))* |
 | **Live demo** | `https://haashiraboobacker.github.io/MedGuard/` |
@@ -30,7 +30,7 @@ MedGuard is a web console that gives a hospital a **single inventory of assets**
 - **Critical medical devices cannot be patched by IT alone** — the admin must *request approval*; a **Clinical Approver** (doctor) reviews the queue and approves or rejects.
 - Every request, approval, rejection, patch and device addition is written to an **audit trail** with actor, role, timestamp and version change.
 
-> ⚠️ **This is a simulation.** MedGuard never connects to real devices. "Patching" updates the version string of a synthetic asset in the browser. See [Limitations](#12-limitations).
+> ⚠️ **This is a simulation.** Synthetic seed data only · no app data sent anywhere · no real devices contacted. MedGuard never connects to real devices. "Patching" updates the version string of a synthetic asset in the browser. See [Limitations](#12-limitations).
 
 ## 3. Key Features
 
@@ -43,7 +43,7 @@ MedGuard is a web console that gives a hospital a **single inventory of assets**
 - 🏥 Multi-branch data sets (3 synthetic hospital branches, each with separate stored state)
 - ➕ Add-asset form with validation (required fields, duplicate IDs, IP format)
 - 🔍 Search, filters, category tabs, KPIs (secure / vulnerable / compliance)
-- 🔐 Input is HTML-escaped before rendering; **no network calls, no backend, no secrets**
+- 🔐 Input is HTML-escaped before rendering; **no backend, no secrets, and no app or patient data ever leaves the browser** (only optional Google Fonts are fetched)
 
 ## 4. Technology Stack
 
@@ -149,6 +149,8 @@ Latest run (full output in [docs/test-results.txt](docs/test-results.txt)): **19
 | Audit | Request / reject / add / patch events are logged |
 | Data integrity | Required fields, unique IDs, valid categories, input validation |
 
+**Note:** the automated tests combine static code checks (e.g. no network APIs, escaping present) with logic checks run on the risk and approval functions. End-to-end behaviour (login, patching, approval workflow, audit log) was verified manually; see the manual test cases and the screenshots above.
+
 Methodology and manual test cases: [docs/TESTING.md](docs/TESTING.md). All testing was done locally against synthetic data only.
 
 ## 11. Security & Safety Statement
@@ -176,11 +178,14 @@ MedGuard **does not use AI or machine learning**. All decisions follow determini
 
 | Member | Role / Contribution |
 |---|---|
-| Anamika E | `[FrontEnd]` |
-| Reema Sulthana | `[FrontEnd]` |
-| Haashir Aboobacker | `[BackEnd]` |
-| Azeem Abbas | `[BackEnd]` |
+| Azeem Abbas | `Backend, Audit & Testing` |
+| Haashir Aboobacker | `Backend & Security Logic` |
+| Anamika E | `Frontend & Interaction` |
+| Reema Sulthana | `Frontend & UI/UX Design` |
 
+## 15. Third-Party Components
+
+Full list in [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md). Summary: Inter and JetBrains Mono fonts (SIL Open Font License, loaded from Google Fonts), and GitHub Actions/Pages for CI and hosting. No frameworks, external APIs, AI models or datasets are used. All asset data is synthetic and created by the team.
 
 ## 16. License
 
