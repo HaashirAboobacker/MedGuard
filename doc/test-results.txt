@@ -1,0 +1,25 @@
+
+MedGuard test run
+=================
+PASS  SEC-01  no network calls in app code (fetch/XHR/WebSocket/sendBeacon)
+PASS  SEC-02  no API keys / tokens / private keys committed
+PASS  SEC-03  only demo credentials present (admin123 / doctor123)
+PASS  SEC-04  only RFC1918 private IPs used in seed data (no real public IPs)
+PASS  SEC-05  synthetic-data disclosure shown in UI
+PASS  SEC-06  user-entered text is HTML-escaped before rendering
+PASS  SEC-07  no patient-identifier fields in seed data
+PASS  HIL-01  critical medical devices (pump/ventilator/imaging) require clinical approval
+PASS  HIL-02  non-critical assets do not require approval
+PASS  HIL-03  up-to-date asset is never flagged vulnerable and is low risk
+PASS  HIL-04  admin patch path blocks approval-gated devices
+PASS  HIL-05  only clinical role can approve / reject queue items
+PASS  HIL-06  clinical role cannot trigger the admin patch path
+PASS  AUD-01  patch, request, reject and add actions are written to the audit log
+PASS  DAT-01  all seed assets have required fields
+PASS  DAT-02  asset IDs are unique within each branch
+PASS  DAT-03  every branch contains at least one vulnerable and one up-to-date asset
+PASS  DAT-04  categories are within the supported set
+PASS  DAT-05  duplicate-ID and IP-format validation exist in the add-device form
+
+19 passed, 0 failed, 19 total
+Seed assets: MAIN=18 NORTH=11 WEST=10
