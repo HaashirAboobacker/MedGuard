@@ -1,0 +1,31 @@
+# Secrets - NEVER commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+secrets/
+credentials*.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node / build
+node_modules/
+npm-debug.log*
+dist/
+build/
+coverage/
+
+# Logs & data (never upload patient / hospital data)
+*.log
+*.sqlite
+*.db
+*.csv
+*.bak
