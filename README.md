@@ -10,7 +10,7 @@
 | **Challenge Number & Title** | 3 – Hospital Network + Infrastructure |
 | **License** | [MIT](LICENSE) (open source) |
 | **Final version for judging** | Tag `v1.0.0-astra2026` *(see [docs/SUBMISSION.md](docs/SUBMISSION.md))* |
-| **Live demo** | `https://haashiraboobacker.github.io/MedGuard/` |
+| **Live demo** | [https://haashiraboobacker.github.io/MedGuard/](https://haashiraboobacker.github.io/MedGuard/) |
 
 ---
 
