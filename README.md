@@ -174,12 +174,12 @@ MedGuard **does not use AI or machine learning**. All decisions follow determini
 
 ## 14. Team Members & Contributions
 
-Members :
-
-Anamika E  
-Reema Sulthana 
-Hashir Aboobacker
-Azeem Abbas 
+| Member | Role / Contribution |
+|---|---|
+| Anamika E | `[FrontEnd]` |
+| Reema Sulthana | `[FrontEnd]` |
+| Haashir Aboobacker | `[BackEnd]` |
+| Azeem Abbas | `[BackEnd]` |
 
 
 ## 16. License
