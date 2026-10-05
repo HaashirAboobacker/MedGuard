@@ -5,7 +5,7 @@
 3. **Selected Track:** [12]
 4. **Challenge Number & Title:** [3 – Hospital Network + Infrastructure]
 5. **GitHub Repository URL:** (https://github.com/HaashirAboobacker/MedGuard)
-6. **Final Commit / Tag / Release:** tag `v1.0.0-astra2026` — commit `[SHORT SHA]`
+6. **Final Commit / Tag / Release:** tag `v1.0.0-astra2026` — commit 'a3952c9'
 7. **Demo URL:** (https://haashiraboobacker.github.io/MedGuard/)
 8. **Project Documentation:** README.md and /docs
 9. **Other organizer information:** Made as a part of the ASTRA 2026 Hackathon at KMCT Institute of Emerging Technology and Management 
