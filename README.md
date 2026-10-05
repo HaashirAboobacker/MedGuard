@@ -174,16 +174,13 @@ MedGuard **does not use AI or machine learning**. All decisions follow determini
 
 ## 14. Team Members & Contributions
 
-| Member | Role / Contribution |
+| Member | 
 |---|---|
-| Anamika E | `[CONTRIBUTION]` |
-| Reema Sulthana | `[CONTRIBUTION]` |
-| Hashir Aboobacker | `[CONTRIBUTION]` |
-| Azeem Abbas | `[CONTRIBUTION]` |
+| Anamika E | 
+| Reema Sulthana |
+| Hashir Aboobacker |
+| Azeem Abbas 
 
-## 15. Third-Party Components
-
-See [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md). Summary: Inter and JetBrains Mono fonts (SIL Open Font License, via Google Fonts). No frameworks, APIs, AI models or datasets.
 
 ## 16. License
 
