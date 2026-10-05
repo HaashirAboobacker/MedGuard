@@ -1,0 +1,2392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MedGuard · Enterprise Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+   ═══════════════════════════════════════════ */
+:root {
+  --bg-0: #0B0F19; --bg-1: #111827; --bg-2: #1a2233; --bg-3: #232d42;
+  --border: #2a3449; --border-hi: #374151;
+  --text-hi: #f1f5f9; --text-md: #cbd5e1; --text-lo: #94a3b8; --text-dim: #64748b;
+  --green: #10B981; --green-dim: #064e3b;
+  --red: #EF4444; --red-dim: #7f1d1d;
+  --orange: #F59E0B; --orange-dim: #78350f;
+  --blue: #3B82F6; --cyan: #06B6D4; --purple: #8B5CF6;
+  --font-sans: "Inter", -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
+  --radius-xl: 16px; --radius-full: 9999px;
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-2: 0 2px 6px rgba(0,0,0,0.4);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.5);
+  --glow-green: 0 0 20px rgba(16,185,129,0.35);
+  --glow-red:   0 0 20px rgba(239,68,68,0.35);
+  --glow-cyan:  0 0 20px rgba(6,182,212,0.30);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-sans);
+  font-size: 13px; line-height: 1.5;
+  color: var(--text-md);
+  background:
+    radial-gradient(ellipse 1200px 600px at 20% 0%, rgba(16,185,129,0.05), transparent 60%),
+    radial-gradient(ellipse 1000px 500px at 80% 100%, rgba(6,182,212,0.04), transparent 60%),
+    var(--bg-0);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+button, input, select, textarea { font-family: inherit; color: inherit; }
+button { cursor: pointer; }
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-0), 0 0 0 4px var(--green);
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-0); }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 10px; border: 2px solid var(--bg-0); }
+::-webkit-scrollbar-thumb:hover { background: var(--border-hi); }
+::selection { background: rgba(16,185,129,0.3); color: var(--text-hi); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ═══ LOGIN PAGE ═══ */
+#loginPage { min-height: 100vh; display: grid; grid-template-columns: 1fr 480px; position: relative; }
+.login-hero {
+  padding: 60px; display: flex; flex-direction: column;
+  justify-content: space-between; position: relative; overflow: hidden;
+}
+.login-hero::before {
+  content: ""; position: absolute; top: -30%; left: -10%;
+  width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.login-hero::after {
+  content: ""; position: absolute; bottom: -30%; right: -10%;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(6,182,212,0.10) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-brand { display: flex; align-items: center; gap: 12px; position: relative; z-index: 2; }
+.hero-logo {
+  width: 42px; height: 42px; border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; box-shadow: var(--glow-green);
+}
+.hero-brand-name { color: var(--text-hi); font-size: 17px; font-weight: 700; }
+.hero-brand-sub { color: var(--text-dim); font-size: 11.5px; margin-top: 2px; }
+.hero-content { position: relative; z-index: 2; max-width: 560px; }
+.hero-title {
+  font-size: 40px; font-weight: 800; color: var(--text-hi);
+  letter-spacing: -1.2px; line-height: 1.15; margin-bottom: 20px;
+}
+.hero-title em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-desc { font-size: 15px; color: var(--text-lo); line-height: 1.7; margin-bottom: 32px; }
+.hero-features { display: flex; flex-direction: column; gap: 14px; }
+.hero-feature { display: flex; align-items: center; gap: 12px; font-size: 13.5px; color: var(--text-md); }
+.hero-feature-icon {
+  width: 28px; height: 28px; border-radius: var(--radius-md);
+  background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.hero-footer { position: relative; z-index: 2; display: flex; gap: 10px; flex-wrap: wrap; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; background: rgba(17,24,39,0.6);
+  border: 1px solid var(--border); border-radius: var(--radius-full);
+  font-size: 11px; color: var(--text-lo); font-weight: 500;
+}
+.login-panel-wrap {
+  background: linear-gradient(180deg, var(--bg-1), rgba(17,24,39,0.9));
+  border-left: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px; position: relative;
+}
+.login-panel { width: 100%; max-width: 380px; }
+.login-panel-title {
+  font-size: 22px; font-weight: 700; color: var(--text-hi);
+  letter-spacing: -0.4px; margin-bottom: 6px;
+}
+.login-panel-sub { font-size: 12.5px; color: var(--text-dim); margin-bottom: 28px; }
+.role-tabs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; padding: 4px; background: var(--bg-2);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  margin-bottom: 22px;
+}
+.role-tab {
+  padding: 10px 12px; border: none; background: transparent;
+  border-radius: var(--radius-md); color: var(--text-lo);
+  font-size: 12.5px; font-weight: 600;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  transition: all 0.18s; cursor: pointer;
+}
+.role-tab:hover { color: var(--text-hi); }
+.role-tab.active { background: var(--bg-3); color: var(--text-hi); box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+.role-tab.active[data-role="admin"] {
+  background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(6,182,212,0.10));
+  color: var(--green); border: 1px solid rgba(16,185,129,0.35);
+}
+.role-tab.active[data-role="clinical"] {
+  background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(245,158,11,0.10));
+  color: #fca5a5; border: 1px solid rgba(239,68,68,0.35);
+}
+.role-tab-icon { font-size: 16px; }
+.role-tab-label { font-size: 12px; font-weight: 700; }
+.role-tab-desc { font-size: 10px; opacity: 0.75; font-weight: 500; }
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--text-dim); font-weight: 700; margin-bottom: 6px;
+}
+.form-input {
+  width: 100%; background: var(--bg-2);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-md);
+  padding: 11px 14px; color: var(--text-hi);
+  font-size: 13px; outline: none;
+  transition: all 0.15s; font-family: inherit;
+}
+.form-input::placeholder { color: var(--text-dim); }
+.form-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+.password-wrap { position: relative; }
+.password-toggle {
+  position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: transparent; border: none;
+  color: var(--text-dim); font-size: 14px;
+  cursor: pointer; padding: 4px; border-radius: var(--radius-sm);
+}
+.password-toggle:hover { color: var(--text-hi); }
+.login-error {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.4);
+  border-left: 3px solid var(--red);
+  color: #fca5a5;
+  padding: 10px 14px; border-radius: var(--radius-md);
+  font-size: 12.5px; margin-bottom: 16px;
+  display: none; animation: shake 0.4s ease;
+}
+.login-error.show { display: block; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+.btn-login {
+  width: 100%; padding: 12px;
+  border-radius: var(--radius-md); border: none;
+  font-size: 13.5px; font-weight: 700; cursor: pointer;
+  transition: all 0.18s; font-family: inherit;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, var(--green), #059669);
+  color: #052e1b;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.25);
+}
+.btn-login:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+.btn-login:active { transform: translateY(0); }
+.btn-login.clinical {
+  background: linear-gradient(135deg, var(--red), #dc2626);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239,68,68,0.3);
+}
+.btn-login.clinical:hover { box-shadow: 0 6px 20px rgba(239,68,68,0.5); }
+.demo-creds {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 14px; font-size: 11.5px;
+}
+.demo-creds-title {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-dim);
+  font-weight: 700; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.demo-cred-row {
+  display: flex; justify-content: space-between;
+  align-items: center; padding: 6px 0;
+  border-bottom: 1px dashed rgba(255,255,255,0.04);
+  font-family: var(--font-mono); font-size: 11px;
+}
+.demo-cred-row:last-child { border-bottom: none; }
+.demo-cred-user { color: var(--text-lo); }
+.demo-cred-pass { color: var(--cyan); }
+.demo-cred-click {
+  cursor: pointer; border-radius: var(--radius-sm);
+  padding: 4px 6px; margin: 0 -6px; transition: background 0.15s;
+}
+.demo-cred-click:hover { background: rgba(16,185,129,0.08); }
+
+/* ═══ APP SHELL ═══ */
+#appPage { display: none; }
+#appPage.active { display: block; }
+.topbar {
+  background: linear-gradient(180deg, var(--bg-1), rgba(17,24,39,0.95));
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(8px);
+}
+.brand { display: flex; align-items: center; gap: 11px; flex-shrink: 0; }
+.brand-logo {
+  width: 30px; height: 30px; border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; box-shadow: var(--glow-green);
+}
+.brand-logo.clinical {
+  background: linear-gradient(135deg, var(--red), var(--orange));
+  box-shadow: var(--glow-red);
+}
+.brand-name { color: var(--text-hi); font-size: 14px; font-weight: 700; }
+.brand-sub { color: var(--text-dim); font-size: 10.5px; margin-top: 1px; }
+.topbar-spacer { flex: 1; }
+.env-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 10px; background: var(--bg-2);
+  border: 1px solid var(--border); border-radius: var(--radius-full);
+  font-size: 11px; color: var(--text-lo);
+}
+.pulse-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 0 rgba(16,185,129,0.6);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+.scan-time { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); }
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 12px 5px 6px;
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 12px; font-weight: 600; color: var(--text-hi);
+}
+.user-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  color: #052e1b; font-weight: 800;
+}
+.user-avatar.clinical {
+  background: linear-gradient(135deg, var(--red), var(--orange));
+  color: white;
+}
+.user-role {
+  font-size: 10px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+}
+.icon-btn {
+  width: 30px; height: 30px; border-radius: var(--radius-md);
+  background: var(--bg-2); border: 1px solid var(--border);
+  color: var(--text-lo); font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.icon-btn:hover { background: var(--bg-3); color: var(--text-hi); border-color: var(--border-hi); }
+.icon-btn.reset-btn:hover {
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.5);
+  color: #fca5a5;
+}
+.app-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: calc(100vh - 55px);
+  position: relative; z-index: 2;
+}
+.sidebar {
+  background: linear-gradient(180deg, var(--bg-1), rgba(17,24,39,0.7));
+  border-right: 1px solid var(--border);
+  padding: 16px 10px;
+  position: sticky; top: 55px;
+  height: calc(100vh - 55px);
+  overflow-y: auto;
+}
+.nav-section-label {
+  font-size: 9.5px; text-transform: uppercase;
+  letter-spacing: 1.3px; color: var(--text-dim);
+  font-weight: 700; padding: 10px 10px 5px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--radius-md);
+  color: var(--text-lo); font-size: 12.5px; font-weight: 600;
+  cursor: pointer; margin-bottom: 1px; position: relative;
+  transition: all 0.15s;
+}
+.nav-item:hover { background: var(--bg-2); color: var(--text-hi); }
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(16,185,129,0.15), transparent);
+  color: var(--green);
+}
+.nav-item.active::before {
+  content: ""; position: absolute;
+  left: 0; top: 25%; bottom: 25%; width: 3px;
+  background: var(--green);
+  border-radius: 0 3px 3px 0;
+  box-shadow: var(--glow-green);
+}
+.sidebar.clinical .nav-item.active {
+  background: linear-gradient(90deg, rgba(239,68,68,0.15), transparent);
+  color: #fca5a5;
+}
+.sidebar.clinical .nav-item.active::before {
+  background: var(--red); box-shadow: var(--glow-red);
+}
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+.nav-count {
+  margin-left: auto; background: var(--orange);
+  color: #1c1207; font-size: 10px; font-weight: 800;
+  padding: 1px 6px; border-radius: var(--radius-full);
+}
+.nav-count:empty { display: none; }
+.main-content {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 55px);
+  min-width: 0;
+}
+.kpi-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; padding: 16px 20px 12px;
+  flex-shrink: 0;
+}
+.kpi {
+  background: linear-gradient(180deg, var(--bg-1) 0%, rgba(17,24,39,0.7) 100%);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 14px 16px; position: relative; overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.kpi:hover { transform: translateY(-1px); border-color: var(--border-hi); }
+.kpi::before {
+  content: ""; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--text-dim); opacity: 0.5;
+}
+.kpi.secure::before     { background: var(--green); opacity: 1; box-shadow: var(--glow-green); }
+.kpi.vulnerable::before { background: var(--red);   opacity: 1; box-shadow: var(--glow-red); }
+.kpi.compliance::before { background: var(--cyan);  opacity: 1; box-shadow: var(--glow-cyan); }
+.kpi-label {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-dim); font-weight: 700;
+}
+.kpi-value {
+  font-size: 26px; font-weight: 800; color: var(--text-hi);
+  margin-top: 6px; letter-spacing: -0.6px; line-height: 1;
+  font-feature-settings: "tnum";
+}
+.kpi-value.green { color: var(--green); text-shadow: var(--glow-green); }
+.kpi-value.red   { color: var(--red);   text-shadow: var(--glow-red); }
+.kpi-value.cyan  { color: var(--cyan);  text-shadow: var(--glow-cyan); }
+.kpi-sub { font-size: 11px; color: var(--text-lo); margin-top: 4px; }
+.kpi-progress {
+  margin-top: 8px; height: 4px; background: var(--bg-3);
+  border-radius: 2px; overflow: hidden;
+}
+.kpi-progress > div {
+  height: 100%; background: var(--green);
+  border-radius: 2px; transition: width 0.5s ease;
+}
+.toolbar {
+  padding: 0 20px 12px;
+  display: flex; gap: 10px;
+  align-items: center; flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+.tabs {
+  display: flex; background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 3px; gap: 2px;
+  flex-shrink: 0;
+}
+.tab {
+  padding: 6px 12px; font-size: 12px; color: var(--text-lo);
+  background: transparent; border: none; border-radius: 7px;
+  font-weight: 600; display: flex; align-items: center; gap: 6px;
+  transition: all 0.15s; white-space: nowrap; font-family: inherit;
+}
+.tab:hover { color: var(--text-hi); }
+.tab.active { background: var(--bg-3); color: var(--text-hi); }
+.tab .count {
+  font-size: 10px; padding: 1px 6px; border-radius: 6px;
+  background: var(--bg-3); color: var(--text-lo); font-weight: 700;
+}
+.tab.active .count { background: var(--green-dim); color: var(--green); }
+.search-wrap { flex: 1; max-width: 380px; margin-left: auto; position: relative; }
+.search-input {
+  width: 100%; background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 12px 8px 34px;
+  color: var(--text-hi); font-size: 12.5px;
+  outline: none; transition: all 0.15s; font-family: inherit;
+}
+.search-input::placeholder { color: var(--text-dim); }
+.search-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+.search-icon {
+  position: absolute; left: 11px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim); font-size: 13px; pointer-events: none;
+}
+.bulk-btn {
+  padding: 7px 14px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 700;
+  cursor: pointer; border: 1px solid transparent;
+  transition: all 0.15s; font-family: inherit;
+}
+.bulk-btn.primary { background: var(--green); color: #052e1b; }
+.bulk-btn.primary:hover { background: #0ea371; box-shadow: var(--glow-green); }
+
+/* ═══ TABLE — 5 columns, balanced ═══ */
+.table-wrap {
+  margin: 0 20px 20px;
+  background: linear-gradient(180deg, var(--bg-1) 0%, rgba(17,24,39,0.85) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  flex: 1;
+}
+.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  table-layout: fixed;
+}
+.table-wrap thead {
+  background: var(--bg-2);
+  position: sticky;
+  top: 55px;
+  z-index: 10;
+  box-shadow: 0 1px 0 var(--border);
+}
+.table-wrap th {
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--text-dim);
+  font-weight: 700;
+  user-select: none;
+  white-space: nowrap;
+  background: var(--bg-2);
+}
+.table-wrap th.sortable { cursor: pointer; transition: color 0.15s; }
+.table-wrap th.sortable:hover { color: var(--text-hi); }
+.table-wrap th .sort-ind {
+  display: inline-block; margin-left: 4px;
+  opacity: 0.4; font-size: 9px;
+}
+.table-wrap th.sorted .sort-ind { opacity: 1; color: var(--green); }
+
+/* Column widths — Location/Asset / Version / Status / Risk / Action */
+.table-wrap thead th:nth-child(1) { width: 26%; min-width: 240px; }
+.table-wrap thead th:nth-child(2) { width: 34%; min-width: 300px; }
+.table-wrap thead th:nth-child(3) { width: 14%; min-width: 130px; }
+.table-wrap thead th:nth-child(4) { width: 10%; min-width: 100px; }
+.table-wrap thead th:nth-child(5) {
+  width: 16%;
+  min-width: 150px;
+  text-align: right;
+  padding-right: 20px;
+}
+
+.table-wrap tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+  cursor: pointer;
+  position: relative;
+  height: auto;
+}
+.table-wrap tbody tr:last-child { border-bottom: none; }
+.table-wrap tbody tr:hover { background: var(--bg-2); }
+.table-wrap tbody tr::before {
+  content: ""; position: absolute;
+  left: 0; top: 0; bottom: 0; width: 3px;
+  background: transparent;
+  transition: background 0.15s;
+  pointer-events: none;
+}
+.table-wrap tbody tr:hover::before { background: var(--green); }
+.table-wrap td {
+  padding: 12px 14px;
+  color: var(--text-md);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.table-wrap th:first-child,
+.table-wrap td:first-child { padding-left: 20px; }
+.table-wrap tbody tr:first-child td { padding-top: 14px; }
+
+/* ── Column 1: Location & Asset — compact ── */
+.loc-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  white-space: normal;
+}
+.loc-cell .loc-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.loc-cell .loc-name {
+  font-weight: 600; color: var(--text-hi);
+  font-size: 12.5px; line-height: 1.3;
+}
+.loc-cell .loc-dept {
+  font-size: 10.5px; color: var(--text-dim);
+  line-height: 1.2;
+}
+.loc-cell .asset-id {
+  font-size: 10px; color: var(--text-dim);
+  font-family: var(--font-mono); line-height: 1;
+}
+.loc-cell .cat-badge {
+  padding: 2px 7px; font-size: 9.5px; line-height: 1.2;
+}
+
+/* ── Category badges ── */
+.cat-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: var(--radius-sm);
+  font-size: 10.5px; font-weight: 600; white-space: nowrap;
+}
+.cat-computer { background: rgba(59,130,246,0.14); color: #93c5fd; }
+.cat-database { background: rgba(139,92,246,0.14); color: #c4b5fd; }
+.cat-medical  { background: rgba(6,182,212,0.14);  color: #67e8f9; }
+.cat-tablet   { background: rgba(245,158,11,0.14); color: #fcd34d; }
+
+/* ── Column 2: Software Version ── */
+.version-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  white-space: normal;
+}
+.version-cell .asset-name {
+  font-weight: 600; color: var(--text-hi);
+  font-size: 13px; line-height: 1.3;
+  white-space: normal;
+}
+.version-cell .version-line {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.version-current { color: var(--orange); }
+.version-current.safe { color: var(--green); }
+.version-arrow { color: var(--text-dim); margin: 0 5px; }
+.version-target { color: var(--cyan); }
+
+/* ── Status badges ── */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: var(--radius-full);
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 0.5px; white-space: nowrap;
+}
+.status-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+.status-up-to-date {
+  background: rgba(16,185,129,0.14); color: var(--green);
+  border: 1px solid rgba(16,185,129,0.35);
+}
+.status-up-to-date .dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.status-vulnerable {
+  background: rgba(239,68,68,0.14); color: var(--red);
+  border: 1px solid rgba(239,68,68,0.35);
+}
+.status-vulnerable .dot {
+  background: var(--red);
+  animation: attentionPulse 2s ease-in-out infinite;
+}
+@keyframes attentionPulse {
+  0%, 100% { box-shadow: 0 0 6px var(--red); }
+  50%      { box-shadow: 0 0 12px var(--red), 0 0 20px rgba(239,68,68,0.5); }
+}
+.status-pending {
+  background: rgba(245,158,11,0.14); color: var(--orange);
+  border: 1px solid rgba(245,158,11,0.4);
+}
+.status-pending .dot { background: var(--orange); }
+.status-patching {
+  background: rgba(59,130,246,0.14); color: #93c5fd;
+  border: 1px solid rgba(59,130,246,0.4);
+  animation: patchPulse 1s ease infinite;
+}
+.status-patching .dot { background: var(--blue); }
+@keyframes patchPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+/* ── Risk badges ── */
+.risk-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: var(--radius-sm);
+  font-size: 10px; font-weight: 700;
+  white-space: nowrap; text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.risk-critical { background: rgba(239,68,68,0.18); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+.risk-high     { background: rgba(245,158,11,0.16); color: #fcd34d; border: 1px solid rgba(245,158,11,0.35); }
+.risk-medium   { background: rgba(59,130,246,0.12); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+.risk-low      { background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+
+/* ── Column 5: Action — right-aligned, button hugs edge ── */
+.table-wrap tbody td:nth-child(5) {
+  text-align: right;
+  padding-right: 20px;
+}
+.table-wrap tbody td:nth-child(5) .action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  padding: 6px 12px;
+}
+.table-wrap tbody td:nth-child(5) .action-done {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── Action button ── */
+.action-btn {
+  padding: 7px 12px; border-radius: 7px;
+  font-size: 11.5px; font-weight: 600;
+  cursor: pointer; border: 1px solid transparent;
+  transition: all 0.15s;
+  display: inline-flex; align-items: center;
+  gap: 5px; font-family: inherit; white-space: nowrap;
+}
+.action-primary {
+  background: rgba(16,185,129,0.15); color: var(--green);
+  border-color: rgba(16,185,129,0.4);
+}
+.action-primary:hover { background: var(--green); color: #052e1b; box-shadow: var(--glow-green); }
+.action-approve {
+  background: rgba(245,158,11,0.15); color: var(--orange);
+  border-color: rgba(245,158,11,0.4);
+}
+.action-approve:hover { background: var(--orange); color: #1c1207; }
+.action-done {
+  color: var(--text-dim); font-size: 11.5px;
+}
+.action-done .check { color: var(--green); font-size: 13px; }
+
+.empty-state {
+  padding: 60px 20px; text-align: center;
+  color: var(--text-dim); font-size: 13px;
+}
+.empty-state .big { font-size: 40px; margin-bottom: 8px; }
+
+/* ═══ PANELS ═══ */
+.audit-panel, .queue-panel {
+  margin: 0 20px 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.queue-panel { border-color: rgba(245,158,11,0.35); }
+.audit-header {
+  padding: 12px 16px; cursor: pointer;
+  display: flex; justify-content: space-between;
+  align-items: center;
+  font-weight: 700; color: var(--text-hi);
+  font-size: 12.5px; user-select: none;
+}
+.queue-panel .audit-header { color: var(--orange); }
+.audit-header:hover { background: var(--bg-2); }
+.audit-chevron {
+  transition: transform 0.2s;
+  color: var(--text-dim); font-size: 11px;
+}
+.audit-panel.open .audit-chevron,
+.queue-panel.open .audit-chevron { transform: rotate(180deg); }
+.audit-body {
+  display: none; max-height: 340px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+}
+.audit-panel.open .audit-body,
+.queue-panel.open .audit-body { display: block; }
+.audit-row {
+  display: grid;
+  grid-template-columns: 150px 1fr 200px 220px;
+  gap: 12px; padding: 9px 16px;
+  font-size: 11.5px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.audit-row:last-child { border-bottom: none; }
+.audit-row:hover { background: var(--bg-2); }
+.audit-time     { color: var(--text-dim); font-family: var(--font-mono); font-size: 10.5px; }
+.audit-name     { color: var(--text-hi); font-weight: 600; }
+.audit-change   { color: var(--cyan); font-family: var(--font-mono); font-size: 11px; }
+.audit-approver { color: var(--green); font-size: 11px; }
+.audit-empty    { padding: 28px; text-align: center; color: var(--text-dim); font-size: 12px; }
+.queue-panel .count {
+  background: rgba(245,158,11,0.2); color: var(--orange);
+  padding: 1px 7px; border-radius: 6px;
+  font-size: 10.5px; margin-left: 6px;
+}
+.queue-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.queue-row:last-child { border-bottom: none; }
+.queue-row .q-name { font-weight: 600; color: var(--text-hi); flex: 1; }
+.queue-row .q-loc  { color: var(--text-dim); font-size: 11px; }
+.queue-actions { display: flex; gap: 6px; }
+.q-btn {
+  padding: 5px 11px; border-radius: 7px;
+  border: none; font-weight: 700;
+  font-size: 11px; font-family: inherit;
+  cursor: pointer; transition: all 0.15s;
+}
+.q-btn.approve { background: var(--green); color: #052e1b; }
+.q-btn.approve:hover { background: #0ea371; }
+.q-btn.reject {
+  background: rgba(239,68,68,0.15); color: #fca5a5;
+  border: 1px solid rgba(239,68,68,0.4);
+}
+.q-btn.reject:hover { background: var(--red); color: white; }
+
+/* ═══ MODAL ═══ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(2,6,23,0.75);
+  backdrop-filter: blur(4px);
+  display: none; align-items: center;
+  justify-content: center;
+  z-index: 200; padding: 16px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg-1);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-xl);
+  max-width: 480px; width: 100%;
+  padding: 24px;
+  box-shadow: var(--shadow-3);
+  animation: pop 0.2s ease;
+  max-height: 92vh; overflow-y: auto;
+}
+@keyframes pop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.modal-header {
+  display: flex; align-items: flex-start;
+  gap: 14px; margin-bottom: 16px;
+}
+.modal-icon-wrap {
+  width: 42px; height: 42px; border-radius: 10px;
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; flex-shrink: 0;
+}
+.modal h2 { font-size: 15px; color: var(--text-hi); margin-bottom: 3px; font-weight: 700; }
+.modal-sub { font-size: 11.5px; color: var(--text-dim); }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.modal-actions button {
+  flex: 1; padding: 10px; border-radius: 9px;
+  font-size: 12.5px; font-weight: 700;
+  cursor: pointer; border: 1px solid transparent;
+  transition: all 0.15s; font-family: inherit;
+}
+.btn-cancel {
+  background: var(--bg-2); color: var(--text-lo);
+  border-color: var(--border-hi);
+}
+.btn-cancel:hover { background: var(--bg-3); color: var(--text-hi); }
+.btn-approve { background: var(--red); color: white; }
+.btn-approve:hover { background: #dc2626; box-shadow: var(--glow-red); }
+.form-field { display: flex; flex-direction: column; gap: 5px; }
+.form-field > span {
+  font-size: 10.5px; color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px; font-weight: 600;
+}
+.form-field input,
+.form-field select {
+  background: var(--bg-2);
+  border: 1px solid var(--border-hi);
+  border-radius: 8px;
+  padding: 8px 11px;
+  color: var(--text-hi);
+  font-size: 12.5px;
+  outline: none; transition: all 0.15s;
+}
+.form-field input:focus,
+.form-field select:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+}
+#entryForm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ═══ TOAST ═══ */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  background: var(--bg-2);
+  border: 1px solid var(--green);
+  color: var(--text-hi);
+  padding: 12px 20px; border-radius: 10px;
+  font-size: 12.5px; font-weight: 600;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5), var(--glow-green);
+  transition: transform 0.3s ease;
+  z-index: 300; max-width: 90vw;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.error { border-color: var(--red); box-shadow: 0 4px 24px rgba(0,0,0,0.5), var(--glow-red); }
+.toast.info  { border-color: var(--cyan); box-shadow: 0 4px 24px rgba(0,0,0,0.5), var(--glow-cyan); }
+
+/* ═══ FOOTER ═══ */
+.footer {
+  text-align: center; font-size: 10.5px;
+  color: var(--text-dim);
+  padding: 16px 20px 24px; line-height: 1.6;
+  position: relative; z-index: 2;
+}
+.footer .badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  margin: 0 3px; color: var(--text-lo);
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 1100px) {
+  .table-wrap thead th:nth-child(2),
+  .table-wrap tbody td:nth-child(2) { display: none; }
+}
+@media (max-width: 1000px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .toolbar { flex-wrap: wrap; }
+  .search-wrap { max-width: none; margin-left: 0; flex: 1 1 100%; }
+}
+@media (max-width: 900px) {
+  #loginPage { grid-template-columns: 1fr; }
+  .login-hero { display: none; }
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+@media (max-width: 700px) {
+  .kpi-row { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════
+   LIQUID GLASS THEME (override layer)
+   ═══════════════════════════════════════════ */
+:root {
+  --bg-0: #070a1a;
+  --bg-1: rgba(255,255,255,0.07);
+  --bg-2: rgba(255,255,255,0.09);
+  --bg-3: rgba(255,255,255,0.16);
+  --border: rgba(255,255,255,0.14);
+  --border-hi: rgba(255,255,255,0.28);
+  --text-lo: #b9c5dc; --text-dim: #8d9bb8;
+  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 20px; --radius-xl: 28px;
+  --glass-bg: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04) 55%, rgba(255,255,255,0.08));
+  --glass-blur: blur(24px) saturate(180%);
+  --glass-shadow: 0 12px 40px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.32),
+    inset 0 -1px 0 rgba(255,255,255,0.06),
+    inset 0 0 28px rgba(255,255,255,0.04);
+}
+body { background: var(--bg-0); }
+body::before {
+  content: ""; position: fixed; inset: -12%; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(38% 38% at 14% 18%, rgba(16,185,129,0.60), transparent 70%),
+    radial-gradient(34% 34% at 86% 14%, rgba(59,130,246,0.55), transparent 70%),
+    radial-gradient(40% 40% at 78% 86%, rgba(139,92,246,0.55), transparent 70%),
+    radial-gradient(30% 30% at 18% 86%, rgba(6,182,212,0.48), transparent 70%);
+  filter: blur(34px);
+  animation: lgDrift 26s ease-in-out infinite alternate;
+}
+@keyframes lgDrift { to { transform: translate3d(3%,-3%,0) scale(1.08) rotate(3deg); } }
+#loginPage, #appPage { position: relative; z-index: 1; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { border-color: transparent; background: rgba(255,255,255,0.22); }
+*:focus-visible { box-shadow: 0 0 0 2px rgba(255,255,255,0.5), 0 0 0 4px var(--green); }
+
+/* glass surfaces */
+.login-panel-wrap, .topbar, .sidebar, .kpi, .table-wrap, .audit-panel, .queue-panel,
+.modal, .tabs, .role-tabs, .demo-creds, .env-pill, .user-chip, .icon-btn,
+.hero-badge, .footer .badge, .toast {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border);
+  box-shadow: var(--glass-shadow);
+}
+.login-panel-wrap { margin: 24px; border-radius: var(--radius-xl); }
+.topbar { border-width: 0 0 1px; border-radius: 0; box-shadow: inset 0 -1px 0 rgba(255,255,255,0.08), 0 8px 30px rgba(0,0,0,0.25); }
+.sidebar { border-width: 0 1px 0 0; border-radius: 0; box-shadow: inset -1px 0 0 rgba(255,255,255,0.08); }
+.tabs, .role-tabs, .env-pill, .user-chip { box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 14px rgba(0,0,0,0.2); }
+.icon-btn { box-shadow: inset 0 1px 0 rgba(255,255,255,0.3); }
+.modal { background: linear-gradient(135deg, rgba(60,70,120,0.55), rgba(25,30,60,0.55)); }
+.modal-overlay { background: rgba(5,8,22,0.45); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.kpi::before { height: 1px; left: 14%; right: 14%; border-radius: 2px; }
+.table-wrap thead, .table-wrap th { background: rgba(255,255,255,0.06); }
+.table-wrap tbody tr:hover { background: rgba(255,255,255,0.08); }
+.table-wrap { overflow: hidden; }
+.audit-row:hover, .audit-header:hover, .queue-row:hover { background: rgba(255,255,255,0.06); }
+
+/* controls */
+.form-input, .search-input, .form-field input, .form-field select {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--border-hi);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+select option { background: #151a36; color: #f1f5f9; }
+.tab.active, .role-tab.active {
+  background: linear-gradient(135deg, rgba(255,255,255,0.26), rgba(255,255,255,0.10));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 4px 12px rgba(0,0,0,0.25);
+}
+.btn-login, .bulk-btn.primary, .btn-approve, .q-btn.approve {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 8px 22px rgba(16,185,129,0.35);
+}
+.btn-login.clinical, .btn-approve { box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 22px rgba(239,68,68,0.35); }
+.action-btn { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.2); }
+.brand-logo, .hero-logo, .user-avatar { box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), var(--glow-green); }
+.toast { background: linear-gradient(135deg, rgba(60,70,120,0.6), rgba(25,30,60,0.6)); }
+
+@media (max-width: 900px) { .login-panel-wrap { margin: 12px; } }
+
+/* ═══ GREY THEME + CATEGORY TABS ═══ */
+:root { --bg-0: #0c0d10; }
+body { background: #0c0d10; }
+body::before {
+  background:
+    radial-gradient(38% 38% at 14% 18%, rgba(200,205,212,0.22), transparent 70%),
+    radial-gradient(34% 34% at 86% 14%, rgba(150,156,165,0.22), transparent 70%),
+    radial-gradient(40% 40% at 78% 86%, rgba(190,195,202,0.18), transparent 70%),
+    radial-gradient(30% 30% at 18% 86%, rgba(120,125,134,0.28), transparent 70%);
+}
+::selection { background: rgba(255,255,255,0.25); }
+*:focus-visible { box-shadow: 0 0 0 2px rgba(0,0,0,0.5), 0 0 0 4px rgba(255,255,255,0.7); }
+.hero-logo, .brand-logo, .brand-logo.clinical, .user-avatar, .user-avatar.clinical {
+  background: linear-gradient(145deg, #f3f4f6, #7b8190); color: #111;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 0 18px rgba(255,255,255,0.18);
+}
+.hero-title em { background: linear-gradient(135deg, #fff, #9ca3af); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-feature-icon, .modal-icon-wrap { background: rgba(255,255,255,0.10) !important; border: 1px solid rgba(255,255,255,0.22) !important; }
+.role-tab.active[data-role="admin"], .role-tab.active[data-role="clinical"] {
+  background: linear-gradient(135deg, rgba(255,255,255,0.26), rgba(255,255,255,0.08)); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+}
+.btn-login, .btn-login.clinical, .bulk-btn.primary, .btn-approve, .q-btn.approve {
+  background: linear-gradient(180deg, #f3f4f6, #a1a6b0) !important; color: #14161a !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 22px rgba(0,0,0,0.35);
+}
+.btn-login:hover, .bulk-btn.primary:hover, .btn-approve:hover, .q-btn.approve:hover { background: linear-gradient(180deg, #fff, #c3c7cf) !important; box-shadow: inset 0 1px 0 #fff, 0 8px 26px rgba(255,255,255,0.2); }
+.q-btn.reject, .icon-btn.reset-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); color: #e5e7eb; }
+.q-btn.reject:hover { background: rgba(255,255,255,0.22); color: #fff; }
+.nav-item.active, .sidebar.clinical .nav-item.active { background: linear-gradient(90deg, rgba(255,255,255,0.16), transparent); color: #fff; }
+.nav-item.active::before, .sidebar.clinical .nav-item.active::before { background: #e5e7eb; box-shadow: 0 0 12px rgba(255,255,255,0.5); }
+.nav-count, .queue-panel .count { background: #e5e7eb; color: #14161a; }
+.queue-panel { border-color: var(--border); }
+.queue-panel .audit-header { color: var(--text-hi); }
+.form-input:focus, .search-input:focus, .form-field input:focus, .form-field select:focus { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 0 3px rgba(255,255,255,0.12); }
+.pulse-dot { background: #d1d5db; animation: none; box-shadow: 0 0 8px rgba(255,255,255,0.6); }
+.kpi::before, .kpi.secure::before, .kpi.vulnerable::before, .kpi.compliance::before { background: rgba(255,255,255,0.55); box-shadow: none; opacity: 1; }
+.kpi-value.green, .kpi-value.red, .kpi-value.cyan { color: var(--text-hi); text-shadow: 0 0 18px rgba(255,255,255,0.25); }
+.kpi-progress > div { background: linear-gradient(90deg, #9ca3af, #f3f4f6); }
+.cat-computer, .cat-database, .cat-medical, .cat-tablet { background: rgba(255,255,255,0.10); color: #d1d5db; border: 1px solid rgba(255,255,255,0.14); }
+.version-target, .version-current.safe, .audit-change, .audit-approver, .demo-cred-pass { color: #d1d5db; }
+.table-wrap tbody tr:hover::before { background: #e5e7eb; }
+.action-primary, .action-approve { background: rgba(255,255,255,0.12); color: #f3f4f6; border-color: rgba(255,255,255,0.3); }
+.action-primary:hover, .action-approve:hover { background: #f3f4f6; color: #14161a; box-shadow: 0 0 18px rgba(255,255,255,0.3); }
+.action-done .check { color: #d1d5db; }
+.toast, .toast.error, .toast.info { border-color: rgba(255,255,255,0.35); box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+.tab.active .count { background: rgba(255,255,255,0.22); color: #fff; }
+.hero-feature-icon, .demo-cred-click:hover { background: rgba(255,255,255,0.08); }
+
+/* table header: no sticky offset inside the clipped wrapper (fixes overlap with first row) */
+.table-wrap thead { position: static; }
+
+/* category tabs */
+.toolbar { flex-wrap: wrap; }
+.tabs { flex-wrap: wrap; }
+.tab.cat-tab { position: relative; padding: 8px 12px 12px; gap: 9px; border-radius: 12px; }
+.tab-orb {
+  width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.28), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.tab-txt { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; text-align: left; }
+.tab-label { font-size: 12px; font-weight: 700; }
+.tab-meta { font-size: 10px; font-weight: 500; color: var(--text-dim); }
+.tab.active .tab-meta { color: var(--text-lo); }
+.tab-bar { position: absolute; left: 12px; right: 12px; bottom: 4px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.10); overflow: hidden; }
+.tab-bar i { display: block; height: 100%; background: #d1d5db; border-radius: 2px; transition: width 0.5s ease; }
+.branch-pill select { background: transparent; border: none; outline: none; color: var(--text-hi); font-size: 12px; font-weight: 600; cursor: pointer; }
+
+/* labelled header buttons */
+.icon-btn.has-label { width: auto; padding: 0 12px; gap: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+
+/* text-only severity colours: red = high/critical, yellow = medium, green = up to date */
+:root { --t-red: #f87171; --t-yellow: #facc15; --t-green: #34d399; }
+.version-current.t-bad, .status-badge.t-bad { color: var(--t-red); }
+.version-current.t-warn, .status-badge.t-warn { color: var(--t-yellow); }
+.version-current.t-ok, .version-target.t-ok, .status-badge.t-ok { color: var(--t-green); }
+.asset-emoji { font-size: 14px; margin-right: 6px; }
+
+/* unified search + filter dropdown, with a larger Add Device button */
+.toolbar { flex-wrap: nowrap; align-items: stretch; gap: 12px; }
+.search-wrap.unified {
+  flex: 1; max-width: none; margin-left: 0; position: relative; z-index: 30;
+  display: flex; align-items: center; gap: 6px; padding: 5px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 14px rgba(0,0,0,0.2);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-wrap.unified:focus-within { border-color: rgba(255,255,255,0.55); box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 0 3px rgba(255,255,255,0.10); }
+.search-wrap.unified .search-icon { left: 18px; }
+.search-wrap.unified .search-input {
+  flex: 1; min-width: 0; width: auto; padding: 10px 12px 10px 36px;
+  background: transparent; border: none; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none; font-size: 13.5px;
+}
+.search-wrap.unified .search-input:focus { border: none; box-shadow: none; }
+.filter-dd { position: relative; flex-shrink: 0; padding-left: 6px; border-left: 1px solid var(--border); }
+.filter-trigger {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
+  color: var(--text-hi); font-size: 12.5px; font-weight: 600; font-family: inherit;
+  cursor: pointer; white-space: nowrap; transition: background 0.15s;
+}
+.filter-trigger:hover, .filter-dd.open .filter-trigger { background: rgba(255,255,255,0.18); }
+.ft-orb { font-size: 14px; }
+.ft-count { font-size: 10px; padding: 1px 7px; border-radius: 6px; background: rgba(255,255,255,0.16); }
+.ft-caret { font-size: 11px; opacity: 0.8; transition: transform 0.2s; }
+.filter-dd.open .ft-caret { transform: rotate(180deg); }
+.filter-menu {
+  display: none; position: absolute; right: 0; top: calc(100% + 12px); z-index: 60;
+  min-width: 320px; max-height: 70vh; overflow-y: auto; padding: 6px;
+  flex-direction: column; gap: 2px;
+  background: linear-gradient(135deg, rgba(74,78,88,0.82), rgba(26,28,34,0.88));
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-hi); border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.filter-dd.open .filter-menu { display: flex; }
+.filter-menu .tab { width: 100%; justify-content: flex-start; }
+.filter-menu .tab .tab-txt { flex: 1; }
+.filter-menu .tab .count { margin-left: auto; }
+.add-device-btn { padding: 0 24px; font-size: 14px; border-radius: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* new MedGuard shield logo (login logo slightly larger) */
+.hero-logo, .brand-logo, .brand-logo.clinical { background: none !important; box-shadow: none !important; border-radius: 0; font-size: 0; }
+.hero-logo { width: 54px; height: 54px; }
+.hero-logo svg, .brand-logo svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 10px rgba(255,255,255,0.18)); }
+
+/* Logs popup */
+.logs-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  align-items: center; justify-content: center; padding: 20px;
+  background: rgba(5,6,10,0.5);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.logs-overlay.open { display: flex; }
+.logs-modal.audit-panel {
+  margin: 0; width: min(960px, 100%); max-height: 82vh; display: flex; flex-direction: column;
+  background: linear-gradient(135deg, rgba(74,78,88,0.72), rgba(26,28,34,0.82));
+  border: 1px solid var(--border-hi); border-radius: var(--radius-xl);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.logs-modal .audit-header { padding: 16px 20px; font-size: 14px; flex-shrink: 0; }
+.logs-modal .audit-body { max-height: none; overflow-y: auto; flex: 1; }
+.logs-close { color: var(--text-lo); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN PAGE ═══ -->
+<div id="loginPage">
+
+  <div class="login-hero">
+    <div class="hero-brand">
+      <div class="hero-logo"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="MedGuard"><defs><linearGradient id="mgShield1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5f6f8"/><stop offset="1" stop-color="#8b919d"/></linearGradient></defs><path fill="url(#mgShield1)" fill-rule="evenodd" d="M32 3C24.5 8.5 15 10 6.5 10V30C6.5 46 17.5 56 32 61C46.5 56 57.5 46 57.5 30V10C49 10 39.5 8.5 32 3Z M37 14.2C41 16 45.5 17.2 51.5 17.5V30C51.5 41 45 48.5 37 52.8Z"/></svg></div>
+      <div>
+        <div class="hero-brand-name">MedGuard</div>
+        <div class="hero-brand-sub">Healthcare Cybersecurity Console</div>
+      </div>
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Protecting patients,<br>
+        one patch at a <em>time</em>.
+      </h1>
+      <p class="hero-desc">
+        A unified cybersecurity console for hospital asset visibility,
+        vulnerability tracking, and clinical-safe patch orchestration
+        across computers, databases, and connected medical devices.
+      </p>
+      <div class="hero-features">
+        <div class="hero-feature">
+          <div class="hero-feature-icon">💻</div>
+          <span>Monitor workstations, laptops, and terminals fleet-wide</span>
+        </div>
+        <div class="hero-feature">
+          <div class="hero-feature-icon">🗄️</div>
+          <span>Track EHR, lab, billing, and pharmacy database versions</span>
+        </div>
+        <div class="hero-feature">
+          <div class="hero-feature-icon">🩺</div>
+          <span>Clinical approval workflow for medical device patches</span>
+        </div>
+        <div class="hero-feature">
+          <div class="hero-feature-icon">📋</div>
+          <span>Full audit trail with approver identity and timestamps</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-footer">
+      <span class="hero-badge">🔐 100% Synthetic Data</span>
+      <span class="hero-badge">🩺 Human-in-the-Loop</span>
+      <span class="hero-badge">📋 Full Audit Trail</span>
+    </div>
+  </div>
+
+  <div class="login-panel-wrap">
+    <div class="login-panel">
+      <h2 class="login-panel-title">Sign in</h2>
+      <p class="login-panel-sub">Select your role and enter credentials to continue.</p>
+
+      <div class="role-tabs">
+        <button class="role-tab active" data-role="admin" onclick="selectRole('admin')">
+          <span class="role-tab-icon">💻</span>
+          <span class="role-tab-label">IT Admin</span>
+          <span class="role-tab-desc">Fleet &amp; infrastructure</span>
+        </button>
+        <button class="role-tab" data-role="clinical" onclick="selectRole('clinical')">
+          <span class="role-tab-icon">🩺</span>
+          <span class="role-tab-label">Clinical Approver</span>
+          <span class="role-tab-desc">Medical devices only</span>
+        </button>
+      </div>
+
+      <div class="login-error" id="loginError"></div>
+
+      <div class="form-group">
+        <label class="form-label" for="loginBranch">Hospital / Branch</label>
+        <select id="loginBranch" class="form-input"></select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="usernameInput">Username</label>
+        <input type="text" id="usernameInput" class="form-input"
+               placeholder="Enter your username" autocomplete="username" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="passwordInput">Password</label>
+        <div class="password-wrap">
+          <input type="password" id="passwordInput" class="form-input"
+                 placeholder="Enter your password" autocomplete="current-password" />
+          <button class="password-toggle" type="button" onclick="togglePassword()" id="togglePwBtn">👁</button>
+        </div>
+      </div>
+
+      <button class="btn-login" id="loginBtn" onclick="attemptLogin()">
+        Sign in as IT Admin →
+      </button>
+
+      <div class="demo-creds">
+        <div class="demo-creds-title">🔑 Demo credentials (click to fill)</div>
+        <div id="demoCredRows"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP PAGE ═══ -->
+<div id="appPage">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo" id="topbarLogo"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="MedGuard"><defs><linearGradient id="mgShield2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5f6f8"/><stop offset="1" stop-color="#8b919d"/></linearGradient></defs><path fill="url(#mgShield2)" fill-rule="evenodd" d="M32 3C24.5 8.5 15 10 6.5 10V30C6.5 46 17.5 56 32 61C46.5 56 57.5 46 57.5 30V10C49 10 39.5 8.5 32 3Z M37 14.2C41 16 45.5 17.2 51.5 17.5V30C51.5 41 45 48.5 37 52.8Z"/></svg></div>
+      <div>
+        <div class="brand-name">MedGuard</div>
+        <div class="brand-sub" id="topbarSub">Healthcare Cybersecurity Console</div>
+      </div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="env-pill branch-pill" title="Hospital database">
+      <span>🏥</span>
+      <span id="branchLabel"></span>
+    </div>
+    <div class="env-pill">
+      <span class="pulse-dot"></span>
+      <span>Live scan</span>
+      <span class="scan-time" id="lastScan">just now</span>
+    </div>
+    <div class="user-chip" id="userChip">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div>
+        <div style="font-size:12px;line-height:1.1;" id="userName">Admin</div>
+        <div class="user-role" id="userRoleLabel">IT Admin</div>
+      </div>
+    </div>
+    <button class="icon-btn has-label reset-btn" title="Reset demo" onclick="resetDemo()">🔄 Reset</button>
+    <button class="icon-btn has-label" title="Logout" onclick="logout()">🚪 Logout</button>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="nav-section-label" id="navSectionLabel">Monitoring</div>
+      <div id="navItems"></div>
+    </aside>
+
+    <main class="main-content">
+      <section class="kpi-row" id="kpiRow"></section>
+      <section class="toolbar" id="toolbar"></section>
+      <section class="table-wrap" id="tableWrap"></section>
+      <section class="queue-panel" id="queuePanel"></section>
+      <section class="logs-overlay" id="auditPanel"></section>
+    </main>
+  </div>
+
+  <div class="footer">
+    <span class="badge">🔐 100% Synthetic Data</span>
+    <span class="badge">🩺 Human-in-the-Loop Enforced</span>
+    <span class="badge">📋 Full Audit Trail</span>
+    <br><br>
+    No real hospital systems, medical devices, or patient data were accessed.
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   AUTH
+   ═══════════════════════════════════════════════════════════ */
+const USERS = {}; // built per hospital below (each account belongs to one branch database)
+let currentUser = null;
+let selectedRole = "admin";
+
+function selectRole(role) {
+  selectedRole = role;
+  document.querySelectorAll(".role-tab").forEach(t => {
+    t.classList.toggle("active", t.dataset.role === role);
+  });
+  const btn = document.getElementById("loginBtn");
+  if (role === "clinical") {
+    btn.textContent = "Sign in as Clinical Approver →";
+    btn.classList.add("clinical");
+  } else {
+    btn.textContent = "Sign in as IT Admin →";
+    btn.classList.remove("clinical");
+  }
+  const userInput = document.getElementById("usernameInput");
+  if (!userInput.value) userInput.value = demoUsername(role);
+  hideLoginError();
+}
+function togglePassword() {
+  const input = document.getElementById("passwordInput");
+  const btn = document.getElementById("togglePwBtn");
+  if (input.type === "password") { input.type = "text"; btn.textContent = "🙈"; }
+  else { input.type = "password"; btn.textContent = "👁"; }
+}
+function fillDemo(which) {
+  document.getElementById("usernameInput").value = demoUsername(which);
+  document.getElementById("passwordInput").value = which === "clinical" ? "doctor123" : "admin123";
+  selectRole(which === "clinical" ? "clinical" : "admin");
+  document.getElementById("passwordInput").focus();
+  hideLoginError();
+}
+function showLoginError(msg) {
+  const box = document.getElementById("loginError");
+  box.textContent = "❌ " + msg;
+  box.classList.add("show");
+}
+function hideLoginError() { document.getElementById("loginError").classList.remove("show"); }
+
+function attemptLogin() {
+  hideLoginError();
+  const username = document.getElementById("usernameInput").value.trim().toLowerCase();
+  const password = document.getElementById("passwordInput").value.trim();
+
+  if (!username || !password) {
+    showLoginError("Please enter both username and password.");
+    return;
+  }
+  const user = USERS[username];
+  if (!user) {
+    showLoginError(`Unknown username "${username}". Use an account from the selected hospital.`);
+    return;
+  }
+  if (user.password !== password) {
+    showLoginError("Incorrect password. Check for spaces or typos.");
+    return;
+  }
+  const chosenBranch = document.getElementById("loginBranch").value;
+  if (user.branch !== chosenBranch) {
+    showLoginError(`This account is not registered at ${chosenBranch}.`);
+    return;
+  }
+  if (user.role !== selectedRole) {
+    selectRole(user.role);
+    showToast(`ℹ️ Switched to ${user.role === 'clinical' ? 'Clinical Approver' : 'IT Admin'} role.`, "info");
+  }
+  setTimeout(() => {
+    const chosen = document.getElementById("loginBranch").value;
+    if (chosen !== currentBranch && BRANCH_SEEDS[chosen]) {
+      applyBranch(chosen);
+      localStorage.setItem("medguard_branch", chosen);
+      patchingIds.clear();
+      searchQuery = "";
+      loadAll();
+    }
+    document.getElementById("branchLabel").textContent = currentBranch;
+    currentUser = { username, ...user };
+    enterApp();
+  }, 300);
+}
+function logout() {
+  currentUser = null;
+  document.getElementById("appPage").classList.remove("active");
+  document.getElementById("loginPage").style.display = "grid";
+  document.getElementById("passwordInput").value = "";
+  document.getElementById("usernameInput").value = "";
+  selectRole("admin");
+  renderAll();
+}
+function enterApp() {
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("appPage").classList.add("active");
+
+  const logo = document.getElementById("topbarLogo");
+  const sub = document.getElementById("topbarSub");
+  const avatar = document.getElementById("userAvatar");
+  const nameEl = document.getElementById("userName");
+  const roleEl = document.getElementById("userRoleLabel");
+
+  if (currentUser.role === "clinical") {
+    logo.classList.add("clinical");
+    sub.textContent = "Clinical Device Approval";
+    avatar.classList.add("clinical");
+    avatar.textContent = currentUser.initials;
+    nameEl.textContent = currentUser.name;
+    roleEl.textContent = "Clinical Approver";
+  } else {
+    logo.classList.remove("clinical");
+    sub.textContent = "Healthcare Cybersecurity Console";
+    avatar.classList.remove("clinical");
+    avatar.textContent = currentUser.initials;
+    nameEl.textContent = currentUser.name;
+    roleEl.textContent = "IT Admin";
+  }
+  renderAll();
+}
+
+/* ═══ RESET DEMO ═══ */
+function resetDemo() {
+  if (!confirm("Reset all branch databases to their original data?\n\nAll patches, audit history, and clinical queues for every branch will be cleared.")) return;
+  BRANCHES.forEach(b => { const k = branchKeys(b); localStorage.removeItem(k.a); localStorage.removeItem(k.h); localStorage.removeItem(k.q); });
+  showToast("🔄 Resetting demo…");
+  setTimeout(() => location.reload(), 600);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DATA
+   ═══════════════════════════════════════════════════════════ */
+const MAIN_SEED = [
+  { id:"PC-NUR-01", name:"Nurse Station Desktop #1", location:"Ward 3B", department:"Nursing",
+    category:"computer", subtype:"Nurse Station PC", icon:"🖥️",
+    current:"Windows 10 · 21H2", target:"Windows 10 · 22H2", ip:"10.10.3.21", risk:"medium" },
+  { id:"PC-NUR-02", name:"Nurse Station Desktop #2", location:"Ward 4A", department:"Nursing",
+    category:"computer", subtype:"Nurse Station PC", icon:"🖥️",
+    current:"Windows 10 · 22H2", target:"Windows 10 · 22H2", ip:"10.10.4.22", risk:"low" },
+  { id:"LAP-DOC-01", name:"Doctor Round Laptop #1", location:"Internal Medicine, Cart 1", department:"Internal Medicine",
+    category:"computer", subtype:"Doctor Round Laptop", icon:"💻",
+    current:"Windows 11 · 22H2", target:"Windows 11 · 23H2", ip:"10.10.5.41", risk:"medium" },
+  { id:"LAP-DOC-04", name:"Doctor Round Laptop #4", location:"Cardiology, Cart 4", department:"Cardiology",
+    category:"computer", subtype:"Doctor Round Laptop", icon:"💻",
+    current:"Windows 11 · 23H2", target:"Windows 11 · 23H2", ip:"10.10.5.44", risk:"low" },
+  { id:"PC-ADM-01", name:"Administrative Computer", location:"Billing Office, Floor 2", department:"Administration",
+    category:"computer", subtype:"Administrative PC", icon:"🖱️",
+    current:"Ubuntu 20.04 LTS", target:"Ubuntu 22.04 LTS", ip:"10.10.6.10", risk:"medium" },
+  { id:"PC-FDK-01", name:"Front-Desk Reception Terminal", location:"Main Lobby", department:"Reception",
+    category:"computer", subtype:"Front-Desk Terminal", icon:"🏢",
+    current:"Windows 10 · 21H2", target:"Windows 10 · 22H2", ip:"10.10.1.5", risk:"medium" },
+  { id:"DB-EHR-01", name:"Primary EHR Database", location:"Data Center, Rack A1", department:"Data Center",
+    category:"database", subtype:"Primary EHR DB", icon:"🗄️",
+    current:"MS SQL Server 2017", target:"MS SQL Server 2019", ip:"10.20.1.10", risk:"high" },
+  { id:"DB-EHR-02", name:"EHR Replica / Backup Node", location:"Data Center, Rack A2", department:"Data Center",
+    category:"database", subtype:"EHR Replica DB", icon:"💾",
+    current:"MS SQL Server 2019", target:"MS SQL Server 2019", ip:"10.20.1.11", risk:"low" },
+  { id:"DB-LAB-01", name:"Lab Results Database", location:"Data Center, Rack B1", department:"Data Center",
+    category:"database", subtype:"Lab Results DB", icon:"🧪",
+    current:"PostgreSQL 13.4", target:"PostgreSQL 14.5", ip:"10.20.2.20", risk:"high" },
+  { id:"DB-BIL-01", name:"Billing & Records Database", location:"Data Center, Rack B2", department:"Data Center",
+    category:"database", subtype:"Billing DB", icon:"🧾",
+    current:"MySQL 5.7", target:"MySQL 8.0", ip:"10.20.2.21", risk:"high" },
+  { id:"DB-PHR-01", name:"Pharmacy / Prescription DB", location:"Data Center, Rack C1", department:"Data Center",
+    category:"database", subtype:"Pharmacy DB", icon:"💊",
+    current:"PostgreSQL 14.5", target:"PostgreSQL 14.5", ip:"10.20.3.30", risk:"low" },
+  { id:"MD-INF-03", name:"Infusion Pump #3", location:"ICU, Bed 5", department:"ICU",
+    category:"medicalDevice", subtype:"Infusion Pump", icon:"💉",
+    current:"Firmware 2.1.0", target:"Firmware 2.4.1", ip:"10.30.1.13", risk:"critical" },
+  { id:"MD-INF-08", name:"Infusion Pump #8", location:"ICU, Bed 9", department:"ICU",
+    category:"medicalDevice", subtype:"Infusion Pump", icon:"💉",
+    current:"Firmware 2.4.1", target:"Firmware 2.4.1", ip:"10.30.1.18", risk:"low" },
+  { id:"MD-MON-02", name:"Heart Monitor #2", location:"ICU, Bed 2", department:"ICU",
+    category:"medicalDevice", subtype:"Heart / Vital Monitor", icon:"❤️",
+    current:"Firmware 1.8.2", target:"Firmware 1.9.0", ip:"10.30.2.2", risk:"critical" },
+  { id:"MD-MON-05", name:"Vital Monitor #5", location:"Cardiology, Bed 11", department:"Cardiology",
+    category:"medicalDevice", subtype:"Heart / Vital Monitor", icon:"❤️",
+    current:"Firmware 1.9.0", target:"Firmware 1.9.0", ip:"10.30.2.5", risk:"low" },
+  { id:"MD-IMG-01", name:"MRI Scanner Control Unit", location:"Radiology, Room R1", department:"Radiology",
+    category:"medicalDevice", subtype:"Imaging Machine", icon:"🧲",
+    current:"Firmware 5.2.1", target:"Firmware 5.4.0", ip:"10.30.3.1", risk:"critical" },
+  { id:"MD-IMG-02", name:"CT Scanner Control Unit", location:"Radiology, Room R3", department:"Radiology",
+    category:"medicalDevice", subtype:"Imaging Machine", icon:"📷",
+    current:"Firmware 5.4.0", target:"Firmware 5.4.0", ip:"10.30.3.3", risk:"low" },
+  { id:"MD-VNT-01", name:"Ventilator #1", location:"ICU, Bed 1", department:"ICU",
+    category:"medicalDevice", subtype:"Ventilator", icon:"🫁",
+    current:"Firmware 3.0.0", target:"Firmware 3.1.2", ip:"10.30.4.1", risk:"critical" },
+];
+
+/* ═══ BRANCH DATABASES — each branch has its own assets, queue and audit trail ═══ */
+const mk = (id,name,location,department,category,subtype,icon,current,target,ip,risk) =>
+  ({ id,name,location,department,category,subtype,icon,current,target,ip,risk });
+const NORTH_SEED = [
+  mk("PC-NW-01","Nurse Station Desktop #1","Cardiac Ward 2A","Nursing","computer","Nurse Station PC","🖥️","Windows 10 · 21H2","Windows 10 · 22H2","10.11.2.21","medium"),
+  mk("LAP-NW-02","Doctor Round Laptop #2","Oncology, Cart 2","Oncology","computer","Doctor Round Laptop","💻","Windows 11 · 22H2","Windows 11 · 23H2","10.11.5.42","medium"),
+  mk("PC-NW-03","Administrative Computer","Admin Office","Administration","computer","Administrative PC","🖱️","Ubuntu 22.04 LTS","Ubuntu 22.04 LTS","10.11.6.10","low"),
+  mk("DB-NW-01","Oncology Records Database","Data Room, Rack N1","Data Center","database","Oncology DB","🧬","PostgreSQL 12.9","PostgreSQL 14.5","10.21.1.10","high"),
+  mk("DB-NW-02","Imaging Archive (PACS) Database","Data Room, Rack N2","Data Center","database","Imaging Archive DB","🗄️","MS SQL Server 2016","MS SQL Server 2019","10.21.1.11","high"),
+  mk("DB-NW-03","Cardiology Registry Database","Data Room, Rack N3","Data Center","database","Registry DB","💾","MySQL 8.0","MySQL 8.0","10.21.1.12","low"),
+  mk("MD-NW-01","Infusion Pump #11","Oncology Day Unit, Bed 3","Oncology","medicalDevice","Infusion Pump","💉","Firmware 2.2.0","Firmware 2.4.1","10.31.1.11","critical"),
+  mk("MD-NW-02","Heart Monitor #7","Cardiac Ward, Bed 4","Cardiology","medicalDevice","Heart / Vital Monitor","❤️","Firmware 1.9.0","Firmware 1.9.0","10.31.2.7","low"),
+  mk("MD-NW-03","PET Scanner Control Unit","Nuclear Medicine, Room N2","Radiology","medicalDevice","Imaging Machine","📷","Firmware 4.8.0","Firmware 5.0.1","10.31.3.2","critical"),
+  mk("MD-NW-04","Defibrillator #2","Cardiac Ward, Crash Cart","Cardiology","medicalDevice","Defibrillator","⚡","Firmware 1.2.0","Firmware 1.3.1","10.31.5.2","critical"),
+  mk("TAB-NW-01","Bedside Tablet #1","Cardiac Ward 2A, Bed 6","Nursing","tablet","Bedside Tablet","📱","iPadOS 16.7","iPadOS 17.6","10.11.7.1","medium"),
+];
+const WEST_SEED = [
+  mk("PC-WC-01","Front-Desk Reception Terminal","Clinic Lobby","Reception","computer","Front-Desk Terminal","🏢","Windows 10 · 21H2","Windows 10 · 22H2","10.12.1.5","medium"),
+  mk("PC-WC-02","Administrative Computer","Clinic Back Office","Administration","computer","Administrative PC","🖱️","Windows 11 · 23H2","Windows 11 · 23H2","10.12.6.10","low"),
+  mk("LAP-WC-01","Doctor Round Laptop #1","Exam Wing, Cart 1","General Practice","computer","Doctor Round Laptop","💻","Windows 11 · 22H2","Windows 11 · 23H2","10.12.5.41","medium"),
+  mk("DB-WC-01","Patient Scheduling Database","Server Closet, Rack W1","IT","database","Scheduling DB","🗓️","MySQL 5.7","MySQL 8.0","10.22.1.10","high"),
+  mk("DB-WC-02","Clinic EHR Replica","Server Closet, Rack W2","IT","database","EHR Replica DB","💾","MS SQL Server 2019","MS SQL Server 2019","10.22.1.11","low"),
+  mk("MD-WC-01","Vital Monitor #1","Exam Room 3","General Practice","medicalDevice","Heart / Vital Monitor","❤️","Firmware 1.8.2","Firmware 1.9.0","10.32.2.1","high"),
+  mk("MD-WC-02","Ultrasound Unit","Imaging Room W1","Radiology","medicalDevice","Imaging Machine","📷","Firmware 3.1.0","Firmware 3.3.2","10.32.3.1","critical"),
+  mk("MD-WC-03","Infusion Pump #2","Treatment Room 1","Treatment","medicalDevice","Infusion Pump","💉","Firmware 2.4.1","Firmware 2.4.1","10.32.1.2","low"),
+  mk("TAB-WC-01","Exam Room Tablet","Exam Room 2","General Practice","tablet","Exam Tablet","📱","Android 12","Android 14","10.12.7.1","medium"),
+  mk("TAB-WC-02","Triage Tablet","Triage Desk","Nursing","tablet","Triage Tablet","📱","Android 14","Android 14","10.12.7.2","low"),
+];
+// devices shown in the reference: pacemakers, MRI scanners, nurse tablets, servers (infusion pumps, heart monitors, laptops, admin PCs already present)
+MAIN_SEED.push(
+  mk("MD-PCM-01","Pacemaker #1","Cardiology, Bed 12","Cardiology","medicalDevice","Pacemaker","🫀","Firmware 3.2.0","Firmware 3.4.1","10.30.4.1","critical"),
+  mk("MD-PCM-02","Pacemaker #2","Cardiology, Bed 14","Cardiology","medicalDevice","Pacemaker","🫀","Firmware 3.4.1","Firmware 3.4.1","10.30.4.2","low"),
+  mk("TAB-NUR-01","Nurse Tablet #1","Ward 3B","Nursing","tablet","Nurse Tablet","📱","iPadOS 16.7","iPadOS 17.6","10.10.7.1","medium"),
+  mk("SRV-APP-01","Application Server #1","Data Center, Rack D1","Data Center","computer","Server","🗄️","Ubuntu Server 20.04","Ubuntu Server 22.04","10.20.4.10","high"));
+NORTH_SEED.push(
+  mk("MD-PCM-NW1","Pacemaker #1","Cardiac Ward, Bed 8","Cardiology","medicalDevice","Pacemaker","🫀","Firmware 3.1.0","Firmware 3.4.1","10.31.4.1","critical"),
+  mk("MD-IMG-NW1","MRI Scanner Control Unit","Radiology, Room N1","Radiology","medicalDevice","Imaging Machine","🧲","Firmware 5.0.2","Firmware 5.4.0","10.31.3.1","critical"),
+  mk("TAB-NUR-NW1","Nurse Tablet #1","Cardiac Ward 2A","Nursing","tablet","Nurse Tablet","📱","iPadOS 17.6","iPadOS 17.6","10.11.7.5","low"),
+  mk("SRV-NW-01","Application Server #1","Data Room, Rack N4","Data Center","computer","Server","🗄️","Windows Server 2016","Windows Server 2022","10.21.4.10","high"));
+WEST_SEED.push(
+  mk("MD-PCM-WC1","Pacemaker Programmer","Cardiology Clinic","Cardiology","medicalDevice","Pacemaker","🫀","Firmware 3.3.0","Firmware 3.4.1","10.32.4.1","critical"),
+  mk("MD-IMG-WC1","MRI Scanner Control Unit","Imaging Room W2","Radiology","medicalDevice","Imaging Machine","🧲","Firmware 5.1.0","Firmware 5.4.0","10.32.3.2","critical"),
+  mk("TAB-NUR-WC1","Nurse Tablet #1","Nursing Station","Nursing","tablet","Nurse Tablet","📱","Android 13","Android 14","10.12.7.5","medium"),
+  mk("SRV-WC-01","Application Server #1","Server Closet, Rack W3","IT","computer","Server","🗄️","Ubuntu Server 20.04","Ubuntu Server 22.04","10.22.4.10","high"));
+const BRANCH_SEEDS = { "Kozhikode Main Hospital": MAIN_SEED, "Malappuram Regional Hospital": NORTH_SEED, "Kannur Community Clinic": WEST_SEED };
+const BRANCHES = Object.keys(BRANCH_SEEDS);
+let SEED_ASSETS = MAIN_SEED;
+let currentBranch = BRANCHES[0];
+let STORAGE_KEY, HISTORY_KEY, QUEUE_KEY;
+
+function branchKeys(name) {
+  const sfx = name === BRANCHES[0] ? "" : "_" + name.toLowerCase().replace(/\W+/g, "-");
+  return { a: "hpr_assets_v1" + sfx, h: "hpr_history_v1" + sfx, q: "hpr_queue_v1" + sfx };
+}
+function applyBranch(name) {
+  currentBranch = name;
+  const k = branchKeys(name);
+  STORAGE_KEY = k.a; HISTORY_KEY = k.h; QUEUE_KEY = k.q;
+  SEED_ASSETS = BRANCH_SEEDS[name];
+}
+function branchSlug(name) { return name.split(" ")[0].toLowerCase(); }
+function demoUsername(role) {
+  const ls = document.getElementById("loginBranch");
+  return (role === "clinical" ? "doctor." : "admin.") + branchSlug(ls && ls.value ? ls.value : currentBranch);
+}
+function renderDemoCreds() {
+  const slug = branchSlug(document.getElementById("loginBranch").value);
+  document.getElementById("demoCredRows").innerHTML = [["admin", "💻", "admin123"], ["clinical", "🩺", "doctor123"]].map(([r, ic, pw]) =>
+    `<div class="demo-cred-row demo-cred-click" onclick="fillDemo('${r}')">
+       <span class="demo-cred-user">${ic} ${r === "clinical" ? "doctor" : "admin"}.${slug}</span>
+       <span class="demo-cred-pass">${pw}</span>
+     </div>`).join("");
+}
+BRANCHES.forEach(b => {
+  const slug = branchSlug(b);
+  USERS["admin." + slug]  = { password: "admin123",  role: "admin",    name: "IT Admin",              initials: "A", branch: b };
+  USERS["doctor." + slug] = { password: "doctor123", role: "clinical", name: "Dr. Clinical Approver", initials: "D", branch: b };
+});
+function initBranch() {
+  const saved = localStorage.getItem("medguard_branch");
+  applyBranch(BRANCH_SEEDS[saved] ? saved : BRANCHES[0]);
+  const ls = document.getElementById("loginBranch");
+  ls.innerHTML = BRANCHES.map(b => `<option value="${b}">${b}</option>`).join("");
+  ls.value = currentBranch;
+  ls.addEventListener("change", () => {
+    const u = document.getElementById("usernameInput");
+    if (!u.value || /^(admin|doctor)\./.test(u.value)) u.value = demoUsername(selectedRole);
+    renderDemoCreds();
+    hideLoginError();
+  });
+  renderDemoCreds();
+}
+const PATCH_DURATION = 900;
+const TOAST_DURATION = 2600;
+
+const CATEGORY_LABELS = {
+  computer: "Computer", database: "Database",
+  medicalDevice: "Medical Device (IoMT)", tablet: "Tablet"
+};
+const RISK_ORDER = { critical: 4, high: 3, medium: 2, low: 1 };
+
+let assets = [];
+let history = [];
+let queue = [];
+let patchingIds = new Set();
+let activeFilter = "all";
+let searchQuery = "";
+let sortKey = null;
+let sortDir = 1;
+
+function saveAssets()  { localStorage.setItem(STORAGE_KEY, JSON.stringify(assets)); }
+function saveHistory() { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
+function saveQueue()   { localStorage.setItem(QUEUE_KEY, JSON.stringify(queue)); }
+
+function loadAll() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      assets = Array.isArray(parsed) && parsed.length ? parsed : JSON.parse(JSON.stringify(SEED_ASSETS));
+    } catch { assets = JSON.parse(JSON.stringify(SEED_ASSETS)); }
+  } else {
+    assets = JSON.parse(JSON.stringify(SEED_ASSETS));
+  }
+  SEED_ASSETS.forEach(seed => {
+    if (!assets.some(x => x.id === seed.id)) assets.push(JSON.parse(JSON.stringify(seed)));
+  });
+  saveAssets();
+  history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+  queue   = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+}
+function actorInfo() {
+  return currentUser
+    ? { actor: `${currentUser.name} (${currentUser.username})`, actorRole: currentUser.role }
+    : { actor: "Unknown user", actorRole: "admin" };
+}
+function logPatch(asset, fromVersion, approvedBy = null) {
+  history.push({
+    timestamp: new Date().toISOString(),
+    assetId: asset.id, assetName: asset.name, category: asset.category,
+    fromVersion, toVersion: asset.target, approvedBy,
+    action: "patch", ...actorInfo(),
+  });
+  saveHistory();
+}
+function logEvent(action, asset, detail) {
+  history.push({
+    timestamp: new Date().toISOString(),
+    assetId: asset.id, assetName: asset.name, category: asset.category,
+    fromVersion: "", toVersion: "", approvedBy: null,
+    action, detail, ...actorInfo(),
+  });
+  saveHistory();
+}
+
+const isVulnerable = (a) => a.current !== a.target;
+const needsApproval = (a) => a.category === "medicalDevice" && riskLevel(a) === "critical";
+
+function riskLevel(a) {
+  if (!isVulnerable(a)) return "low";
+  if (a.risk) return a.risk;
+  if (a.category === "medicalDevice") {
+    if (["Infusion Pump","Ventilator","Imaging Machine"].includes(a.subtype)) return "critical";
+    return "high";
+  }
+  if (a.category === "database") return "high";
+  return "medium";
+}
+function categoryLabel(c) { return CATEGORY_LABELS[c] || "Tablet"; }
+function categoryClass(c) {
+  return c === "computer" ? "cat-computer"
+       : c === "database" ? "cat-database"
+       : c === "medicalDevice" ? "cat-medical"
+       : "cat-tablet";
+}
+function sortRank(a, key) {
+  if (key === "risk")   return RISK_ORDER[riskLevel(a)] || 0;
+  if (key === "status") return isVulnerable(a) ? 1 : 0;
+  if (key === "location") return (a.location || "").toLowerCase();
+  return String(a[key] || "").toLowerCase();
+}
+function escapeHTML(str) {
+  return String(str ?? "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[ch]);
+}
+
+function isClinical() { return currentUser?.role === "clinical"; }
+function roleScopedAssets() {
+  if (isClinical()) return assets.filter(a => a.category === "medicalDevice");
+  return assets;
+}
+function visibleAssets() {
+  let list = [...roleScopedAssets()];
+
+  if (isClinical()) {
+    if (activeFilter === "vulnerable") list = list.filter(isVulnerable);
+    else if (activeFilter === "pending") list = list.filter(a => queue.some(q => q.id === a.id));
+    else if (activeFilter !== "all" && activeFilter !== "medicalDevice") list = [];
+  } else {
+    if (activeFilter === "vulnerable") list = list.filter(isVulnerable);
+    else if (activeFilter !== "all") list = list.filter(a => a.category === activeFilter);
+  }
+
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(a =>
+      a.name.toLowerCase().includes(q) ||
+      a.id.toLowerCase().includes(q) ||
+      (a.location || "").toLowerCase().includes(q) ||
+      (a.department || "").toLowerCase().includes(q) ||
+      (a.subtype || "").toLowerCase().includes(q) ||
+      (a.ip || "").includes(q)
+    );
+  }
+
+  if (sortKey) {
+    list.sort((a, b) => {
+      const av = sortRank(a, sortKey), bv = sortRank(b, sortKey);
+      if (av < bv) return -1 * sortDir;
+      if (av > bv) return  1 * sortDir;
+      return 0;
+    });
+  }
+  return list;
+}
+
+function renderSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const navSection = document.getElementById("navSectionLabel");
+  const navItems = document.getElementById("navItems");
+
+  if (isClinical()) {
+    sidebar.classList.add("clinical");
+    navSection.textContent = "Clinical Approver";
+    navItems.innerHTML = `
+      <a class="nav-item active" data-view="devices">
+        <span class="nav-icon">🩺</span><span>Medical Devices</span>
+      </a>
+      <a class="nav-item" data-view="queue">
+        <span class="nav-icon">⏳</span><span>Pending Approvals</span>
+        <span class="nav-count">${queue.length || ""}</span>
+      </a>
+      <a class="nav-item" data-view="audit">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+    `;
+  } else {
+    sidebar.classList.remove("clinical");
+    navSection.textContent = "Monitoring";
+    navItems.innerHTML = `
+      <a class="nav-item active" data-view="assets">
+        <span class="nav-icon">📊</span><span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-view="computers">
+        <span class="nav-icon">💻</span><span>Computers</span>
+      </a>
+      <a class="nav-item" data-view="databases">
+        <span class="nav-icon">🗄️</span><span>Databases</span>
+      </a>
+      <a class="nav-item" data-view="devices">
+        <span class="nav-icon">🩺</span><span>Medical Devices</span>
+      </a>
+      <a class="nav-item" data-view="audit">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+    `;
+  }
+
+  document.querySelectorAll(".nav-item").forEach(item => {
+    item.addEventListener("click", () => {
+      if (item.dataset.view === "audit") { document.getElementById("auditPanel").classList.add("open"); return; }
+      document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
+      const view = item.dataset.view;
+
+      if (view === "assets")   activeFilter = "all";
+      if (view === "computers") activeFilter = "computer";
+      if (view === "databases") activeFilter = "database";
+      if (view === "devices")  activeFilter = "medicalDevice";
+      if (view === "queue") {
+        activeFilter = "pending";
+        document.getElementById("queuePanel").classList.add("open");
+      }
+
+      renderKPIs();
+      renderToolbar();
+      renderTable();
+    });
+  });
+}
+
+function renderKPIs() {
+  const scope = roleScopedAssets();
+  const total = scope.length;
+  const vuln  = scope.filter(isVulnerable).length;
+  const secure = total - vuln;
+  const compliance = total === 0 ? 100 : Math.round((secure / total) * 100);
+
+  let cards;
+  if (isClinical()) {
+    const pending = queue.length;
+    cards = `
+      <div class="kpi">
+        <div class="kpi-label">🩺 Medical Devices</div>
+        <div class="kpi-value">${total}</div>
+        <div class="kpi-sub">In scope</div>
+      </div>
+      <div class="kpi secure">
+        <div class="kpi-label">✅ Compliant Devices</div>
+        <div class="kpi-value green">${secure}</div>
+        <div class="kpi-sub">${compliance}% up-to-date</div>
+      </div>
+      <div class="kpi vulnerable">
+        <div class="kpi-label">⚠️ Devices Needing Patch</div>
+        <div class="kpi-value red">${vuln}</div>
+        <div class="kpi-sub">Require approval</div>
+      </div>
+      <div class="kpi compliance">
+        <div class="kpi-label">⏳ Pending Approvals</div>
+        <div class="kpi-value cyan">${pending}</div>
+        <div class="kpi-progress"><div style="width:${total ? Math.round(pending / total * 100) : 0}%"></div></div>
+      </div>
+    `;
+  } else {
+    const depts = new Set(scope.map(a => a.department || "—")).size;
+    cards = `
+      <div class="kpi">
+        <div class="kpi-label">📦 Total Assets</div>
+        <div class="kpi-value">${total}</div>
+        <div class="kpi-sub">${depts} departments</div>
+      </div>
+      <div class="kpi secure">
+        <div class="kpi-label">✅ Secure Systems</div>
+        <div class="kpi-value green">${secure}</div>
+        <div class="kpi-sub">${compliance}% of fleet compliant</div>
+      </div>
+      <div class="kpi vulnerable">
+        <div class="kpi-label">⚠️ Vulnerable Systems</div>
+        <div class="kpi-value red">${vuln}</div>
+        <div class="kpi-sub">${vuln === 0 ? "Fleet fully patched ✓" : "Require immediate attention"}</div>
+      </div>
+      <div class="kpi compliance">
+        <div class="kpi-label">🎯 Compliance Status</div>
+        <div class="kpi-value cyan">${compliance}%</div>
+        <div class="kpi-progress"><div style="width:${compliance}%"></div></div>
+      </div>
+    `;
+  }
+  document.getElementById("kpiRow").innerHTML = cards;
+}
+
+function renderToolbar() {
+  const scope = roleScopedAssets();
+  const counts = {
+    all: scope.length,
+    computer: scope.filter(a => a.category === "computer").length,
+    database: scope.filter(a => a.category === "database").length,
+    medicalDevice: scope.filter(a => a.category === "medicalDevice").length,
+    vulnerable: scope.filter(isVulnerable).length,
+  };
+
+  let tabsHTML;
+  if (isClinical()) {
+    tabsHTML = clinicalTabsHTML(scope);
+  } else {
+    tabsHTML = adminTabsHTML(scope);
+  }
+
+  const addBtn = isClinical()
+    ? ""
+    : `<button class="bulk-btn primary add-device-btn" data-action="open-entry" style="flex-shrink:0;">➕ Add Device</button>`;
+
+  document.getElementById("toolbar").innerHTML = `
+    <div class="search-wrap unified">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" class="search-input"
+             placeholder="Search assets…" value="${escapeHTML(searchQuery)}" />
+      <div class="filter-dd" id="filterDD">
+        <button type="button" class="filter-trigger" id="filterTrigger" aria-haspopup="listbox"></button>
+        <div class="filter-menu" id="tabs">${tabsHTML}</div>
+      </div>
+    </div>
+    ${addBtn}
+  `;
+
+  const act = document.querySelector("#tabs .tab.active");
+  const dd = document.getElementById("filterDD");
+  document.getElementById("filterTrigger").innerHTML = act
+    ? `<span class="ft-orb">${act.querySelector(".tab-orb").textContent}</span><span>${act.querySelector(".tab-label").textContent}</span><span class="ft-count">${act.querySelector(".count").textContent}</span><span class="ft-caret">▾</span>`
+    : `<span class="ft-orb">🏷️</span><span>Filter</span><span class="ft-caret">▾</span>`;
+  document.getElementById("filterTrigger").addEventListener("click", () => dd.classList.toggle("open"));
+  if (!window.__ddBound) {
+    window.__ddBound = true;
+    document.addEventListener("click", (e) => {
+      const d = document.getElementById("filterDD");
+      if (d && !d.contains(e.target)) d.classList.remove("open");
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") document.getElementById("filterDD")?.classList.remove("open");
+    });
+  }
+
+  document.querySelectorAll("#tabs .tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      activeFilter = tab.dataset.filter;
+      if (tab.dataset.sub !== undefined) searchQuery = tab.dataset.sub;
+      renderToolbar();
+      renderTable();
+    });
+  });
+  document.getElementById("searchInput").addEventListener("input", (e) => {
+    searchQuery = e.target.value;
+    renderTable();
+  });
+}
+
+/* ═══ TABLE — 5 columns ═══ */
+function renderTable() {
+  const wrap = document.getElementById("tableWrap");
+  const list = visibleAssets();
+  const actionHeader = isClinical() ? "Clinical Action" : "Action";
+
+  wrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th class="sortable" data-sort="location">Location &amp; Asset <span class="sort-ind">▲</span></th>
+          <th class="sortable" data-sort="name">Software Version <span class="sort-ind">▲</span></th>
+          <th class="sortable" data-sort="status">Status <span class="sort-ind">▲</span></th>
+          <th class="sortable" data-sort="risk">Risk <span class="sort-ind">▲</span></th>
+          <th>${actionHeader}</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  `;
+
+  const tbody = document.getElementById("tableBody");
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">
+      <div class="big">🔎</div>
+      ${isClinical() ? "No medical devices match this view." : "No assets match the current filter or search."}
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(rowHTML).join("");
+
+  document.querySelectorAll("th.sortable").forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      if (sortKey === key) sortDir *= -1;
+      else { sortKey = key; sortDir = 1; }
+      document.querySelectorAll("th.sortable").forEach(t => {
+        t.classList.remove("sorted");
+        t.querySelector(".sort-ind").textContent = "▲";
+      });
+      th.classList.add("sorted");
+      th.querySelector(".sort-ind").textContent = sortDir === 1 ? "▲" : "▼";
+      renderTable();
+    });
+  });
+}
+
+function rowHTML(a) {
+  const vuln = isVulnerable(a);
+  const approval = needsApproval(a);
+  const patching = patchingIds.has(a.id);
+  const pending = queue.some(q => q.id === a.id);
+  const tier = !vuln ? "ok" : (["critical", "high"].includes(riskLevel(a)) ? "bad" : "warn");
+
+  let statusBadge;
+  if (patching) {
+    statusBadge = `<span class="status-badge status-patching"><span class="dot"></span>PATCHING…</span>`;
+  } else if (pending) {
+    statusBadge = `<span class="status-badge status-pending"><span class="dot"></span>PENDING</span>`;
+  } else if (vuln) {
+    statusBadge = `<span class="status-badge status-vulnerable t-${tier}"><span class="dot"></span>VULNERABLE</span>`;
+  } else {
+    statusBadge = `<span class="status-badge status-up-to-date t-ok"><span class="dot"></span>UP-TO-DATE</span>`;
+  }
+
+  const risk = riskLevel(a);
+  const riskBadge = `<span class="risk-badge risk-${risk}">${risk}</span>`;
+
+  let actionHTML;
+  if (patching) {
+    actionHTML = `<button class="action-btn action-primary" disabled style="opacity:0.6;">⏳ Patching…</button>`;
+  } else if (!vuln) {
+    actionHTML = `<span class="action-done"><span class="check">✓</span> Up-to-date</span>`;
+  } else if (isClinical()) {
+    if (approval) {
+      actionHTML = `<button class="action-btn action-primary" data-action="approve-direct" data-id="${a.id}">✅ Approve &amp; Patch</button>`;
+    } else {
+      actionHTML = `<span class="action-done" style="color:var(--text-dim);">Not in scope</span>`;
+    }
+  } else {
+    if (approval) {
+      actionHTML = pending
+        ? `<span class="action-done" style="color:var(--orange);">⏳ Awaiting Clinical</span>`
+        : `<button class="action-btn action-approve" data-action="request-approval" data-id="${a.id}">🩺 Request Approval</button>`;
+    } else {
+      actionHTML = `<button class="action-btn action-primary" data-action="patch" data-id="${a.id}">⚡ Patch</button>`;
+    }
+  }
+
+  const dept = escapeHTML(a.department || "—");
+  const name = escapeHTML(a.name);
+  const loc = escapeHTML(a.location);
+  const id = escapeHTML(a.id);
+  const cur = escapeHTML(a.current);
+  const tgt = escapeHTML(a.target);
+
+  return `
+    <tr data-id="${a.id}">
+      <td class="loc-cell">
+        <div class="loc-row">
+          <span class="cat-badge ${categoryClass(a.category)}">${categoryLabel(a.category)}</span>
+          <span class="asset-id">${id}</span>
+        </div>
+        <div class="loc-name">${loc}</div>
+        <div class="loc-dept">${dept}</div>
+      </td>
+      <td>
+        <div class="version-cell">
+          <div class="asset-name"><span class="asset-emoji">${escapeHTML(a.icon || "")}</span>${name}</div>
+          <div class="version-line">
+            <span class="version-current ${vuln ? '' : 'safe'} t-${tier}">${cur}</span>
+            <span class="version-arrow">→</span>
+            <span class="version-target t-ok">${tgt}</span>
+          </div>
+        </div>
+      </td>
+      <td>${statusBadge}</td>
+      <td>${riskBadge}</td>
+      <td>${actionHTML}</td>
+    </tr>
+  `;
+}
+
+function renderQueue() {
+  const panel = document.getElementById("queuePanel");
+  if (!isClinical() && queue.length === 0) {
+    panel.style.display = "none";
+    return;
+  }
+  panel.style.display = "";
+
+  panel.innerHTML = `
+    <div class="audit-header" data-action="toggle-queue">
+      <span>🩺 Clinical Approval Queue <span class="count">${queue.length}</span></span>
+      <span class="audit-chevron">▼</span>
+    </div>
+    <div class="audit-body">
+      ${queue.length === 0
+        ? `<div class="audit-empty">No medical device patches pending approval. 🎉</div>`
+        : queue.map(item => `
+            <div class="queue-row">
+              <span style="font-size:17px;">💉</span>
+              <div style="flex:1;">
+                <div class="q-name">${escapeHTML(item.name)}</div>
+                <div class="q-loc">${escapeHTML(item.location)} · ${escapeHTML(item.department || "—")} · ${escapeHTML(item.current)} → ${escapeHTML(item.target)}</div>
+              </div>
+              ${isClinical()
+                ? `<div class="queue-actions">
+                     <button class="q-btn approve" data-action="approve-queue" data-id="${item.id}">✓ Approve</button>
+                     <button class="q-btn reject" data-action="reject-queue" data-id="${item.id}">✕ Reject</button>
+                   </div>`
+                : `<span style="color:var(--orange);font-size:11px;font-weight:700;">Awaiting clinician</span>`}
+            </div>
+          `).join("")}
+    </div>
+  `;
+}
+function renderAudit() {
+  const reversed = [...history].reverse();
+  document.getElementById("auditPanel").innerHTML = `
+   <div class="audit-panel logs-modal open">
+    <div class="audit-header" data-action="close-logs">
+      <span>📋 Logs</span>
+      <span class="logs-close">✕</span>
+    </div>
+    <div class="audit-body">
+      ${reversed.length === 0
+        ? `<div class="audit-empty">No changes recorded yet.</div>`
+        : reversed.slice(0, 100).map(h => `
+            <div class="audit-row">
+              <span class="audit-time">${new Date(h.timestamp).toLocaleString()}</span>
+              <span class="audit-name">${escapeHTML(h.assetName)}</span>
+              <span class="audit-change">${h.detail ? escapeHTML(h.detail) : escapeHTML(h.fromVersion) + " → " + escapeHTML(h.toVersion)}</span>
+              <span class="audit-approver">${h.actor ? (h.actorRole === "clinical" ? "🩺 " : "💻 ") + escapeHTML(h.actor) : (h.approvedBy ? "🩺 " + escapeHTML(h.approvedBy) : "💻 IT Admin")}</span>
+            </div>
+          `).join("")}
+    </div>
+   </div>
+  `;
+}
+
+function patchAsset(id) {
+  if (isClinical()) return;
+  const a = assets.find(x => x.id === id);
+  if (!a || !isVulnerable(a) || patchingIds.has(id)) return;
+  if (needsApproval(a)) { showToast("⚠️ Critical medical devices require clinical approval.", "error"); return; }
+
+  patchingIds.add(id);
+  renderAll();
+  setTimeout(() => {
+    const from = a.current;
+    a.current = a.target;
+    patchingIds.delete(id);
+    logPatch(a, from);
+    saveAssets();
+    renderAll();
+    showToast(`✅ ${a.name} patched successfully.`);
+  }, PATCH_DURATION);
+}
+function requestApproval(id) {
+  if (isClinical()) return;
+  const a = assets.find(x => x.id === id);
+  if (!a) return;
+  if (queue.some(q => q.id === id)) { showToast("⏳ Already queued."); return; }
+  queue.push({
+    id: a.id, name: a.name, location: a.location,
+    department: a.department, current: a.current, target: a.target,
+    queuedAt: new Date().toISOString(),
+    requestedBy: actorInfo().actor,
+  });
+  saveQueue();
+  logEvent("request", a, "Approval requested");
+  renderAll();
+  showToast(`🕐 "${a.name}" sent to clinical approver.`);
+}
+function approveFromQueue(id) {
+  if (!isClinical()) return;
+  const idx = queue.findIndex(x => x.id === id);
+  if (idx === -1) return;
+  queue.splice(idx, 1);
+  saveQueue();
+  const a = assets.find(x => x.id === id);
+  if (!a) { renderAll(); return; }
+  patchingIds.add(a.id);
+  renderAll();
+  setTimeout(() => {
+    const from = a.current;
+    a.current = a.target;
+    patchingIds.delete(a.id);
+    logPatch(a, from, currentUser.name);
+    saveAssets();
+    renderAll();
+    showToast(`✅ ${a.name} approved and patched.`);
+  }, PATCH_DURATION);
+}
+function rejectFromQueue(id) {
+  if (!isClinical()) return;
+  const idx = queue.findIndex(x => x.id === id);
+  if (idx === -1) return;
+  const item = queue[idx];
+  queue.splice(idx, 1);
+  saveQueue();
+  logEvent("reject", assets.find(x => x.id === id) || { id, name: item.name, category: "medicalDevice" }, "Approval rejected");
+  renderAll();
+  showToast(`❌ "${item.name}" rejected. IT Admin notified.`);
+}
+function approveDirect(id) {
+  if (!isClinical()) return;
+  const a = assets.find(x => x.id === id);
+  if (!a || !isVulnerable(a) || patchingIds.has(id)) return;
+  patchingIds.add(id);
+  renderAll();
+  setTimeout(() => {
+    const from = a.current;
+    a.current = a.target;
+    patchingIds.delete(id);
+    logPatch(a, from, currentUser.name);
+    saveAssets();
+    renderAll();
+    showToast(`✅ ${a.name} approved & patched.`);
+  }, PATCH_DURATION);
+}
+
+function openEntryModal() {
+  if (isClinical()) { showToast("❌ Only IT Admins can add devices.", "error"); return; }
+  document.getElementById("entryModalOverlay").classList.add("show");
+}
+function closeEntryModal() {
+  document.getElementById("entryModalOverlay").classList.remove("show");
+}
+function submitEntryForm() {
+  const data = Object.fromEntries(new FormData(document.getElementById("entryForm")));
+  const errBox = document.getElementById("entryError");
+  errBox.style.display = "none";
+
+  const required = ["id","name","category","subtype","department","location","current","target"];
+  if (required.some(f => !data[f])) {
+    errBox.textContent = "❌ Please fill in all required fields.";
+    errBox.style.display = "block"; return;
+  }
+  if (assets.some(a => a.id === data.id)) {
+    errBox.textContent = `❌ Asset ID "${data.id}" already exists.`;
+    errBox.style.display = "block"; return;
+  }
+  if (data.ip && !/^(\d{1,3}\.){3}\d{1,3}$/.test(data.ip)) {
+    errBox.textContent = "❌ IP address must be in format X.X.X.X";
+    errBox.style.display = "block"; return;
+  }
+
+  const iconMap = { computer:"🖥️", database:"🗄️", medicalDevice:"💉", tablet:"📱" };
+  data.icon = iconMap[data.category] || "📦";
+
+  assets.push(data);
+  saveAssets();
+  logEvent("add", data, "Device added");
+  closeEntryModal();
+  renderAll();
+  showToast(`✅ "${data.name}" added.`);
+}
+
+function injectModals() {
+  document.getElementById("modalRoot").innerHTML = `
+    <div class="modal-overlay" id="entryModalOverlay">
+      <div class="modal" style="max-width:600px;">
+        <div class="modal-header">
+          <div class="modal-icon-wrap" style="background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.4);">➕</div>
+          <div>
+            <h2>Onboard New Device</h2>
+            <div class="modal-sub">Register a hospital asset into MedGuard</div>
+          </div>
+        </div>
+        <form id="entryForm" onsubmit="event.preventDefault();">
+          <label class="form-field"><span>Asset ID *</span>
+            <input name="id" required placeholder="PC-NUR-05" /></label>
+          <label class="form-field"><span>Asset Name *</span>
+            <input name="name" required placeholder="Nurse Station Desktop #5" /></label>
+          <label class="form-field"><span>Category *</span>
+            <select name="category" required>
+              <option value="computer">💻 Computer</option>
+              <option value="database">🗄️ Database</option>
+              <option value="medicalDevice">🩺 Medical Device</option>
+              <option value="tablet">📱 Tablet</option>
+            </select></label>
+          <label class="form-field"><span>Subtype *</span>
+            <input name="subtype" required placeholder="Nurse Station PC" /></label>
+          <label class="form-field"><span>Department *</span>
+            <input name="department" required placeholder="ICU" /></label>
+          <label class="form-field"><span>Location *</span>
+            <input name="location" required placeholder="Ward 3B, Bed 5" /></label>
+          <label class="form-field"><span>Current Version *</span>
+            <input name="current" required placeholder="Windows 10 · 21H2" /></label>
+          <label class="form-field"><span>Target Version *</span>
+            <input name="target" required placeholder="Windows 10 · 22H2" /></label>
+          <label class="form-field"><span>IP Address</span>
+            <input name="ip" placeholder="10.10.3.25" /></label>
+          <label class="form-field"><span>Risk Level</span>
+            <select name="risk">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select></label>
+        </form>
+        <div id="entryError" style="display:none;color:var(--red);font-size:12px;margin-top:12px;padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;"></div>
+        <div class="modal-actions">
+          <button class="btn-cancel" data-action="close-entry">Cancel</button>
+          <button class="btn-approve" style="background:var(--green);" data-action="submit-entry">➕ Add Device</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+let toastTimer = null;
+function showToast(msg, type = "success") {
+  const root = document.getElementById("toastRoot");
+  let toast = root.querySelector(".toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "toast";
+    root.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.remove("error", "info");
+  if (type === "error") toast.classList.add("error");
+  if (type === "info")  toast.classList.add("info");
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), TOAST_DURATION);
+}
+
+function renderAll() {
+  if (!currentUser) return;
+  renderSidebar();
+  renderKPIs();
+  renderToolbar();
+  renderTable();
+  renderQueue();
+  renderAudit();
+}
+
+document.body.addEventListener("click", (e) => {
+  const actionEl = e.target.closest("[data-action]");
+  if (!actionEl) return;
+  e.stopPropagation();
+
+  const action = actionEl.dataset.action;
+  const id = actionEl.dataset.id;
+
+  switch (action) {
+    case "patch": patchAsset(id); break;
+    case "request-approval": requestApproval(id); break;
+    case "approve-queue": approveFromQueue(id); break;
+    case "reject-queue": rejectFromQueue(id); break;
+    case "approve-direct": approveDirect(id); break;
+    case "open-entry": openEntryModal(); break;
+    case "close-entry": closeEntryModal(); break;
+    case "submit-entry": submitEntryForm(); break;
+    case "close-logs": document.getElementById("auditPanel").classList.remove("open"); break;
+    case "toggle-queue": document.getElementById("queuePanel").classList.toggle("open"); break;
+  }
+});
+document.getElementById("modalRoot").addEventListener("click", (e) => {
+  if (e.target.id === "entryModalOverlay") closeEntryModal();
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeEntryModal(); });
+document.getElementById("usernameInput").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") document.getElementById("passwordInput").focus();
+});
+document.getElementById("passwordInput").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") attemptLogin();
+});
+setInterval(() => {
+  const el = document.getElementById("lastScan");
+  if (el) el.textContent = "just now";
+}, 30000);
+
+
+/* ═══ CATEGORY TABS (categories live in the existing filter row) ═══ */
+const TAB_META = {
+  computer:      { icon: "💻", label: "Computers" },
+  database:      { icon: "🗄️", label: "Databases" },
+  medicalDevice: { icon: "🩺", label: "Medical Devices" },
+  tablet:        { icon: "📱", label: "Tablets" },
+};
+function tabHTML({ filter, sub, icon, label, total, meta, pct, active }) {
+  return `<button class="tab cat-tab ${active ? "active" : ""}" data-filter="${filter}" ${sub !== undefined ? `data-sub="${escapeHTML(sub)}"` : ""}>
+    <span class="tab-orb">${icon}</span>
+    <span class="tab-txt"><span class="tab-label">${escapeHTML(label)}</span><span class="tab-meta">${meta}</span></span>
+    <span class="count">${total}</span>
+    <span class="tab-bar"><i style="width:${pct}%"></i></span>
+  </button>`;
+}
+const secureMeta = (list) => `${list.filter(a => !isVulnerable(a)).length} secure · ${list.filter(isVulnerable).length} to patch`;
+const securePct = (list) => list.length ? Math.round(list.filter(a => !isVulnerable(a)).length / list.length * 100) : 0;
+
+function adminTabsHTML(scope) {
+  const vuln = scope.filter(isVulnerable).length;
+  const tabs = [tabHTML({ filter: "all", icon: "📦", label: "All Assets", total: scope.length,
+    meta: secureMeta(scope), pct: securePct(scope), active: activeFilter === "all" })];
+  Object.keys(TAB_META).forEach(cat => {
+    const list = scope.filter(a => a.category === cat);
+    tabs.push(tabHTML({ filter: cat, icon: TAB_META[cat].icon, label: TAB_META[cat].label, total: list.length,
+      meta: list.length ? secureMeta(list) : "None onboarded", pct: securePct(list), active: activeFilter === cat }));
+  });
+  tabs.push(tabHTML({ filter: "vulnerable", icon: "⚠️", label: "Vulnerable Only", total: vuln,
+    meta: `${scope.length ? Math.round(vuln / scope.length * 100) : 0}% of fleet`,
+    pct: scope.length ? Math.round(vuln / scope.length * 100) : 0, active: activeFilter === "vulnerable" }));
+  return tabs.join("");
+}
+function clinicalTabsHTML(scope) {
+  const subs = [...new Set(scope.map(a => a.subtype || "Other"))];
+  const isSub = subs.includes(searchQuery);
+  const vuln = scope.filter(isVulnerable).length;
+  const tabs = [tabHTML({ filter: "medicalDevice", sub: "", icon: "🩺", label: "All Devices", total: scope.length,
+    meta: secureMeta(scope), pct: securePct(scope), active: activeFilter === "medicalDevice" && !isSub })];
+  subs.forEach(sub => {
+    const list = scope.filter(a => (a.subtype || "Other") === sub);
+    tabs.push(tabHTML({ filter: "medicalDevice", sub, icon: list[0].icon || "🩺", label: sub, total: list.length,
+      meta: secureMeta(list), pct: securePct(list), active: activeFilter === "medicalDevice" && searchQuery === sub }));
+  });
+  tabs.push(tabHTML({ filter: "vulnerable", icon: "⚠️", label: "Needs Patch", total: vuln,
+    meta: "Awaiting approval", pct: scope.length ? Math.round(vuln / scope.length * 100) : 0, active: activeFilter === "vulnerable" }));
+  tabs.push(tabHTML({ filter: "pending", icon: "⏳", label: "Pending", total: queue.length,
+    meta: "In clinical queue", pct: 0, active: activeFilter === "pending" }));
+  return tabs.join("");
+}
+
+(function () {
+  const ov = document.getElementById("auditPanel");
+  ov.addEventListener("click", (e) => { if (e.target === ov) ov.classList.remove("open"); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") ov.classList.remove("open"); });
+})();
+injectModals();
+initBranch();
+loadAll();
+selectRole("admin");
+console.log("🛡️ MedGuard ready — alignment fixed, 5 columns");
+</script>
+
+</body>
+</html>
