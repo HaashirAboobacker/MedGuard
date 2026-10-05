@@ -8,7 +8,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-const file = path.join(__dirname, "..", "src", "index.html");
+const file = path.join(__dirname, "..", "index.html");
 const html = fs.readFileSync(file, "utf8");
 const script = (html.match(/<script>([\s\S]*?)<\/script>/) || [])[1] || "";
 
