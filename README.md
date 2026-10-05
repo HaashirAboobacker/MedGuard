@@ -6,8 +6,8 @@
 |---|---|
 | **Project Name** | MedGuard |
 | **Team Name** | 404 Brain Not Found |
-| **Selected Track** | Hospital Network + Infrastructure |
-| **Challenge Number & Title** | `[CHALLENGE NO.] – [CHALLENGE TITLE]` |
+| **Selected Track** | 12 |
+| **Challenge Number & Title** | `[3] – [ Hospital Network + Infrastructure ]` |
 | **License** | [MIT](LICENSE) (open source) |
 | **Final version for judging** | Tag `v1.0.0-astra2026` *(see [docs/SUBMISSION.md](docs/SUBMISSION.md))* |
 | **Live demo** | `https://haashiraboobacker.github.io/MedGuard/` |
@@ -174,12 +174,12 @@ MedGuard **does not use AI or machine learning**. All decisions follow determini
 
 ## 14. Team Members & Contributions
 
-| Member | 
-|---|---|
-| Anamika E | 
-| Reema Sulthana |
-| Hashir Aboobacker |
-| Azeem Abbas 
+Members :
+
+Anamika E  
+Reema Sulthana 
+Hashir Aboobacker
+Azeem Abbas 
 
 
 ## 16. License
